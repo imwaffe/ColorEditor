@@ -5,6 +5,7 @@ build
 *.class
 *.log
 *.jar
+!out/**/*.jar
 *.war
 *.nar
 *.ear
