@@ -1,4 +1,4 @@
-# Editor.ColorEditor
+# ColorEditor
 Basic graphical interface that allows the user to alter the colors
 of one or more images.
 

@@ -5,6 +5,7 @@ build
 *.class
 *.log
 *.jar
+out/production/
 !out/**/*.jar
 *.war
 *.nar
