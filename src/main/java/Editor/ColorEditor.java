@@ -1,4 +1,6 @@
-import GUI.*;
+package Editor;
+
+import Editor.GUI.*;
 import ImageTools.RGBEditor;
 
 import javax.swing.*;

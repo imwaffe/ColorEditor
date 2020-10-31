@@ -1,6 +1,4 @@
-
-
-package GUI;
+package Editor.GUI;
 
 import javax.swing.*;
 import java.awt.*;

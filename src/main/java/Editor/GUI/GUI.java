@@ -1,4 +1,4 @@
-package GUI;
+package Editor.GUI;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
