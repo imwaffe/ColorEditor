@@ -7,7 +7,7 @@ jar {
         attributes(
                 'Main-Class': 'Editor.ColorEditor'
         )
-    }
+    }xm
 }
 
 group 'org.example'
