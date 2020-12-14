@@ -11,6 +11,8 @@
 
 package ImageTools;
 
+import Editor.ImageController;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -27,8 +29,6 @@ public class RGBEditor{
     private final static int MIN_VAL = 0;   //min value of each color channel
     private final static int MAX_VAL = 255; //max value of each color channel
 
-    private final Dimension displaySize;    //max size of the preview image shown to the user
-    private File imageFile;
 
     /**
      * originalRgbRaster is the RGB raster of the original image, this will be used to write the altered image.
@@ -36,43 +36,40 @@ public class RGBEditor{
      * displayOutputRgbRaster is the mapped image scaled to fit the dimensions set by displaySize, both are used to
      * preview in real time the altered image.
      * */
-    private int[] originalRgbRaster, displayOriginalRgbRaster, displayOutputRgbRaster;
-    private int displayImgWidth, displayImgHeigth, originalImgWidth, originalImgHeight;
+    private int[] originalRgbRaster, alteredRgbRaster;
+    private int imgWidth, imgHeight;
 
     private int scaleR=MIN_VAL, scaleG=MIN_VAL, scaleB=MIN_VAL;
 
     /** R, G and B channels coefficients, for every pixel the value of each channel is multiplied
      * by its relative coefficient in order to alter colors (eg: rCoeff=0.5 will cause the RED channel value
      * of each pixel to be halved) */
-    private float rCoeff, gCoeff, bCoeff;
+    private float rCoeff=1, gCoeff=1, bCoeff=1;
 
-    public RGBEditor(Dimension displaySize){
-        this.displaySize = displaySize;
-        displayImgWidth = 0;
-        displayImgHeigth = 0;
-    }
+    public RGBEditor(){}
 
     /** Set the actual image */
-    public void setImage(File ff) throws IOException {
-        imageFile = ff;
-        BufferedImage img = ImagesList.toBuffImg(ff);
+    public void setImage(BufferedImage img){
         originalRgbRaster = ((DataBufferInt) img.getRaster().getDataBuffer()).getData();
-        originalImgWidth = img.getWidth();
-        originalImgHeight = img.getHeight();
-        img = ImageScaler.resizeImage(ImagesList.toBuffImg(ff),displaySize);
-        displayOriginalRgbRaster = ((DataBufferInt) img.getRaster().getDataBuffer()).getData();
-        displayImgWidth = img.getWidth();
-        displayImgHeigth = img.getHeight();
-        reset();
+        imgWidth = img.getWidth();
+        imgHeight = img.getHeight();
+        alteredRgbRaster = imageColorsChanger(originalRgbRaster);
+    }
+
+    public void setImage(ImageController img){
+        originalRgbRaster = ((DataBufferInt) img.getScaledInputImg().getRaster().getDataBuffer()).getData();
+        imgWidth = img.getScaledInputImg().getWidth();
+        imgHeight = img.getScaledInputImg().getHeight();
+        alteredRgbRaster = imageColorsChanger(originalRgbRaster);
     }
 
     /** Returns a BufferedImage given an int[] RGB raster. If no size is given, the size of displayed image is used. */
-    private BufferedImage getBufferedImage(int[] outputRgbRaster){
-        return getBufferedImage(outputRgbRaster, displayImgWidth, displayImgHeigth);
+    public BufferedImage getBufferedImage(int[] rgbRaster){
+        return getBufferedImage(rgbRaster, imgWidth, imgHeight);
     }
-    private BufferedImage getBufferedImage(int[] outputRgbRaster, int width, int height){
+    public static BufferedImage getBufferedImage(int[] rgbRaster, int width, int height){
         BufferedImage buffImg = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        buffImg.setRGB(0,0, width, height,outputRgbRaster,0, width);
+        buffImg.setRGB(0,0, width, height,rgbRaster,0, width);
         return buffImg;
     }
 
@@ -87,7 +84,7 @@ public class RGBEditor{
         gCoeff=(float)(MAX_VAL-rG)/(float)MAX_VAL;
         bCoeff=(float)(MAX_VAL-rB)/(float)MAX_VAL;
 
-        this.displayOutputRgbRaster = imageColorsChanger(displayOriginalRgbRaster);
+        this.alteredRgbRaster = imageColorsChanger(originalRgbRaster);
     }
 
     /** Returns an RGB raster by modifying the one passed as parameter according to rCoeff, gCoeff and bCoeff
@@ -179,26 +176,31 @@ public class RGBEditor{
         scaleR=MIN_VAL;
         scaleB=MIN_VAL;
         scaleG=MIN_VAL;
-        displayOutputRgbRaster = Arrays.copyOf(originalRgbRaster,originalRgbRaster.length);
+        alteredRgbRaster = Arrays.copyOf(originalRgbRaster,originalRgbRaster.length);
     }
 
     /** Returns the BufferedImage of the modified raster (the resized one used as a preview).
      * It's used to display in real time the alterations to the image */
-    public BufferedImage getModifiedImage(){
-        return getBufferedImage(displayOutputRgbRaster);
+    public BufferedImage getAlteredImage(){
+        return getBufferedImage(alteredRgbRaster);
     }
 
     /** Returns the BufferedImage of the original raster (the resized one used as a preview). */
     public BufferedImage getOriginalImage(){
-        return getBufferedImage(displayOriginalRgbRaster);
+        return getBufferedImage(originalRgbRaster);
     }
 
     /** Saves the full screen altered image using the same path as the original image. */
-    public void saveFile() throws IOException {
-        BufferedImage outputImg = getBufferedImage(imageColorsChanger(originalRgbRaster),originalImgWidth,originalImgHeight);
+    public void saveFile(File imageFile) throws IOException {
+        BufferedImage outputImg = getBufferedImage(imageColorsChanger(originalRgbRaster), imgWidth, imgHeight);
         String tokens[] = imageFile.getAbsolutePath().split("\\.(?=[^\\.]+$)");
         String coeffs = "_[R"+ rCoeff +"-G"+ gCoeff +"-B"+ bCoeff +"]";
         File outputFile = new File(tokens[0]+coeffs+"."+tokens[1]);
         ImageIO.write(outputImg,tokens[1],outputFile);
+    }
+
+    public BufferedImage alterImage(BufferedImage input){
+        int[] alteredImg = imageColorsChanger(((DataBufferInt) input.getRaster().getDataBuffer()).getData());
+        return getBufferedImage(alteredImg, input.getWidth(), input.getHeight());
     }
 }
