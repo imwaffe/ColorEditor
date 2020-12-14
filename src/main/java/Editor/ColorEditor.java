@@ -50,7 +50,9 @@ public class ColorEditor {
                     img.get().getFullSizeInputImg().getHeight(),
                     BufferedImage.TYPE_INT_RGB);
             Graphics g = outputImg.getGraphics();
+            StringBuilder fileNameCoeffs = new StringBuilder("-COEFF"+rgb.toStringCoeff());
             if(isCropped.get()){
+                fileNameCoeffs.append("-SELECTION"+img.get().toStringSelection());
                 g.drawImage(img.get().getFullSizeInputImg(),0,0,null);
                 g.drawImage(
                         rgb.alterImage(img.get().getFullSizeCroppedImg()),
@@ -62,8 +64,7 @@ public class ColorEditor {
             }
             try {
                 String tokens[] = inputFile.get().getAbsolutePath().split("\\.(?=[^\\.]+$)");
-                String coeffs = "_altered";
-                File outputFile = new File(tokens[0]+coeffs+"."+tokens[1]);
+                File outputFile = new File(tokens[0]+fileNameCoeffs+"."+tokens[1]);
                 ImageIO.write(outputImg,tokens[1],outputFile);
             } catch (IOException e) {
                 e.printStackTrace();

@@ -69,4 +69,8 @@ public class ImageController {
         return selection;
     }
     public Rectangle getFullSizeSelection() { return fullSizeSelection; }
+
+    public String toStringSelection(){
+        return "[x"+fullSizeSelection.getX()+",y"+fullSizeSelection.getY()+",W"+fullSizeSelection.getWidth()+",H"+fullSizeSelection.getHeight()+"]";
+    }
 }
