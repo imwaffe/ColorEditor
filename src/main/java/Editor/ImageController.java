@@ -29,7 +29,6 @@ public class ImageController {
         cropFactor.setSize(
                 ((double)fullSizeInputImg.getWidth())/(double)scaledInputImg.getWidth(),
                 ((double)fullSizeInputImg.getHeight())/(double)scaledInputImg.getHeight());
-        System.out.println("crop factor h:"+cropFactor.getHeight()+"-w:"+cropFactor.getWidth());
     }
     public ImageController(BufferedImage input, int width, int height){
         this(input, new Dimension(width,height));
@@ -70,4 +69,8 @@ public class ImageController {
         return selection;
     }
     public Rectangle getFullSizeSelection() { return fullSizeSelection; }
+
+    public String toStringSelection(){
+        return "[x"+fullSizeSelection.getX()+",y"+fullSizeSelection.getY()+",W"+fullSizeSelection.getWidth()+",H"+fullSizeSelection.getHeight()+"]";
+    }
 }

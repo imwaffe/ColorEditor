@@ -190,13 +190,8 @@ public class RGBEditor{
         return getBufferedImage(originalRgbRaster);
     }
 
-    /** Saves the full screen altered image using the same path as the original image. */
-    public void saveFile(File imageFile) throws IOException {
-        BufferedImage outputImg = getBufferedImage(imageColorsChanger(originalRgbRaster), imgWidth, imgHeight);
-        String tokens[] = imageFile.getAbsolutePath().split("\\.(?=[^\\.]+$)");
-        String coeffs = "_[R"+ rCoeff +"-G"+ gCoeff +"-B"+ bCoeff +"]";
-        File outputFile = new File(tokens[0]+coeffs+"."+tokens[1]);
-        ImageIO.write(outputImg,tokens[1],outputFile);
+    public String toStringCoeff(){
+        return "[R"+ rCoeff +",G"+ gCoeff +",B"+ bCoeff +"]";
     }
 
     public BufferedImage alterImage(BufferedImage input){
