@@ -19,7 +19,7 @@ Eg:<br>
     means that the R value of each pixel has been halved.
 <br><br>
 It's possible to alter only a portion of the image by clicking on it
-and drawing a rectangle. The saved image will have the following filename:
+and drawing a rectangle. The saved image will have the following filename:<br>
  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>imagename-COEFF\[R0.5,G1.0,B1.0]-SELECTION\[x772.0,y1761.0,W1103.0,H1040.0].jpg</i>
 <br>
 where <b>x</b> and <b>y</b> represent the start of the selection (with 0,0 being
