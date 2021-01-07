@@ -13,12 +13,8 @@ package ImageTools;
 
 import Editor.ImageController;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
-import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 
 public class RGBEditor{
@@ -29,6 +25,7 @@ public class RGBEditor{
     private final static int MIN_VAL = 0;   //min value of each color channel
     private final static int MAX_VAL = 255; //max value of each color channel
 
+    private Runnable onChangeFunction = null;
 
     /**
      * originalRgbRaster is the RGB raster of the original image, this will be used to write the altered image.
@@ -46,21 +43,17 @@ public class RGBEditor{
      * of each pixel to be halved) */
     private float rCoeff=1, gCoeff=1, bCoeff=1;
 
-    public RGBEditor(){}
-
     /** Set the actual image */
     public void setImage(BufferedImage img){
         originalRgbRaster = ((DataBufferInt) img.getRaster().getDataBuffer()).getData();
         imgWidth = img.getWidth();
         imgHeight = img.getHeight();
         alteredRgbRaster = imageColorsChanger(originalRgbRaster);
+        onChangeFunction.run();
     }
 
     public void setImage(ImageController img){
-        originalRgbRaster = ((DataBufferInt) img.getScaledInputImg().getRaster().getDataBuffer()).getData();
-        imgWidth = img.getScaledInputImg().getWidth();
-        imgHeight = img.getScaledInputImg().getHeight();
-        alteredRgbRaster = imageColorsChanger(originalRgbRaster);
+        setImage(img.getScaledInputImg());
     }
 
     /** Returns a BufferedImage given an int[] RGB raster. If no size is given, the size of displayed image is used. */
@@ -85,6 +78,7 @@ public class RGBEditor{
         bCoeff=(float)(MAX_VAL-rB)/(float)MAX_VAL;
 
         this.alteredRgbRaster = imageColorsChanger(originalRgbRaster);
+        onChangeFunction.run();
     }
 
     /** Returns an RGB raster by modifying the one passed as parameter according to rCoeff, gCoeff and bCoeff
@@ -176,6 +170,9 @@ public class RGBEditor{
         scaleR=MIN_VAL;
         scaleB=MIN_VAL;
         scaleG=MIN_VAL;
+        rCoeff=1;
+        gCoeff=1;
+        bCoeff=1;
         alteredRgbRaster = Arrays.copyOf(originalRgbRaster,originalRgbRaster.length);
     }
 
@@ -197,5 +194,9 @@ public class RGBEditor{
     public BufferedImage alterImage(BufferedImage input){
         int[] alteredImg = imageColorsChanger(((DataBufferInt) input.getRaster().getDataBuffer()).getData());
         return getBufferedImage(alteredImg, input.getWidth(), input.getHeight());
+    }
+
+    public void onChange(Runnable onChangeFunction){
+        this.onChangeFunction = onChangeFunction;
     }
 }

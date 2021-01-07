@@ -18,6 +18,7 @@ public class GUI extends JFrame{
     private final JFrame frame = new JFrame();
     private final JPanel imgPanel = new JPanel();
     private final JPanel selectionOverlayPanel = new JPanel();
+    private final JPanel histogramPanel = new JPanel();
     private final JPanel overlayImgPanel = new JPanel();
     private final JMenuBar bar = new JMenuBar();
 
@@ -27,6 +28,8 @@ public class GUI extends JFrame{
 
     private final JMenuItem menuFileOpen = new JMenuItem("Open");
     private final JMenuItem menuFileSave = new JMenuItem("Save");
+
+    private final JMenuItem menuSettingsHistograms = new JMenuItem("Show histograms...");
 
     private Consumer<Rectangle> selectedAction;
     private Dimension imgAbsolutePosition = new Dimension(0,0);
@@ -41,13 +44,18 @@ public class GUI extends JFrame{
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         JPanel btnPanel = new JPanel();
         btnPanel.setPreferredSize(new Dimension(screenSize.width,150));
-        btnPanel.setBackground(new Color(78, 78, 78));
+        btnPanel.setBackground(new Color(19, 19, 19));
 
         //overlayPanel.setOpaque(false);
         selectionOverlayPanel.setBackground(new Color(255,255,255,60));
         selectionOverlayPanel.setSize(0,0);
 
+        histogramPanel.setBackground(new Color(102, 102, 102));
+        histogramPanel.setPreferredSize(new Dimension(300,frame.getHeight()));
+        //imgPanel.setSize(imgPanel.getWidth()-histogramPanel.getWidth(), imgPanel.getHeight());
+
         //frame.add(new MyCanvas());
+        frame.add(histogramPanel, BorderLayout.EAST);
         frame.add(selectionOverlayPanel, BorderLayout.NORTH);
         frame.add(overlayImgPanel, BorderLayout.NORTH);
         frame.add(imgPanel, BorderLayout.CENTER);
@@ -58,13 +66,15 @@ public class GUI extends JFrame{
         btnPanel.add(bBtn);
 
         JMenu menuFile = new JMenu("File");
-        JMenu menuFilter = new JMenu("Settings");
+        JMenu menuSettings = new JMenu("Settings");
 
         menuFile.add(menuFileOpen);
         menuFile.add(menuFileSave);
 
+        menuSettings.add(menuSettingsHistograms);
+
         bar.add(menuFile);
-        bar.add(menuFilter);
+        bar.add(menuSettings);
 
         selectArea(imgPanel);
 
@@ -111,6 +121,9 @@ public class GUI extends JFrame{
     }
     public void saveFileListener(ActionListener action){
         menuFileSave.addActionListener(action);
+    }
+    public void setHistogram(JPanel hist) {
+        histogramPanel.add(hist);
     }
 
     /** Shows a graphical file chooser and returns the selected File */
