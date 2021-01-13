@@ -1,5 +1,7 @@
 /**
  * This class takes care of the keyboard inputs.
+ *
+ *               ######       CC-BY-SA Luca Armellin @imwaffe luca.armellin@outlook.it        ######
  * */
 
 package Editor.GUI;

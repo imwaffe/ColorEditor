@@ -11,13 +11,17 @@
 
 package ImageTools;
 
-import Editor.ImageController;
+import Editor.ImageControllers.InputImageController;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Observable;
+import java.util.Observer;
 
-public class RGBEditor{
+
+public class AlterRGB extends Observable implements AlterColor{
     private final static int RED    = 16;   //trailing zeroes of 0xFF0000 (red channel bit mask)
     private final static int GREEN  = 8;    //trailing zeroes of 0x00FF00 (green channel bit mask)
     private final static int BLUE   = 0;    //trailing zeroes of 0x0000FF (blue channel bit mask)
@@ -25,13 +29,13 @@ public class RGBEditor{
     private final static int MIN_VAL = 0;   //min value of each color channel
     private final static int MAX_VAL = 255; //max value of each color channel
 
+    private ArrayList<Observer> observers = new ArrayList<>();
+
     private Runnable onChangeFunction = null;
 
     /**
      * originalRgbRaster is the RGB raster of the original image, this will be used to write the altered image.
-     * displayOriginalRgbRaster is the original image scaled to fit the dimensions set by displaySize and
-     * displayOutputRgbRaster is the mapped image scaled to fit the dimensions set by displaySize, both are used to
-     * preview in real time the altered image.
+     * alteredRgbRaster is the RGB raster containing the color-altered version of the original image
      * */
     private int[] originalRgbRaster, alteredRgbRaster;
     private int imgWidth, imgHeight;
@@ -52,7 +56,7 @@ public class RGBEditor{
         onChangeFunction.run();
     }
 
-    public void setImage(ImageController img){
+    public void setImage(InputImageController img){
         setImage(img.getScaledInputImg());
     }
 
@@ -176,12 +180,6 @@ public class RGBEditor{
         alteredRgbRaster = Arrays.copyOf(originalRgbRaster,originalRgbRaster.length);
     }
 
-    /** Returns the BufferedImage of the modified raster (the resized one used as a preview).
-     * It's used to display in real time the alterations to the image */
-    public BufferedImage getAlteredImage(){
-        return getBufferedImage(alteredRgbRaster);
-    }
-
     /** Returns the BufferedImage of the original raster (the resized one used as a preview). */
     public BufferedImage getOriginalImage(){
         return getBufferedImage(originalRgbRaster);
@@ -191,6 +189,7 @@ public class RGBEditor{
         return "[R"+ rCoeff +",G"+ gCoeff +",B"+ bCoeff +"]";
     }
 
+    /** Returns the BufferedImage of the original raster (the resized one used as a preview). */
     public BufferedImage alterImage(BufferedImage input){
         int[] alteredImg = imageColorsChanger(((DataBufferInt) input.getRaster().getDataBuffer()).getData());
         return getBufferedImage(alteredImg, input.getWidth(), input.getHeight());
@@ -199,4 +198,5 @@ public class RGBEditor{
     public void onChange(Runnable onChangeFunction){
         this.onChangeFunction = onChangeFunction;
     }
+
 }

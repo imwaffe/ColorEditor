@@ -14,8 +14,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.function.Consumer;
 
-public class GUI extends JFrame{
-    private final JFrame frame = new JFrame();
+public class GUI extends JFrame {
     private final JPanel imgPanel = new JPanel();
     private final JPanel selectionOverlayPanel = new JPanel();
     private final JPanel histogramPanel = new JPanel();
@@ -36,10 +35,9 @@ public class GUI extends JFrame{
 
     public enum Channel {RED, GREEN, BLUE}
 
-    public GUI(String title) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
-        frame.setLayout(new BorderLayout());
-        frame.setTitle(title);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    public GUI() throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
+        super.setLayout(new BorderLayout());
+        super.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         imgPanel.setBackground(new Color(0,0,0));
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         JPanel btnPanel = new JPanel();
@@ -51,15 +49,15 @@ public class GUI extends JFrame{
         selectionOverlayPanel.setSize(0,0);
 
         histogramPanel.setBackground(new Color(102, 102, 102));
-        histogramPanel.setPreferredSize(new Dimension(300,frame.getHeight()));
+        histogramPanel.setPreferredSize(new Dimension(300,super.getHeight()));
         //imgPanel.setSize(imgPanel.getWidth()-histogramPanel.getWidth(), imgPanel.getHeight());
 
         //frame.add(new MyCanvas());
-        frame.add(histogramPanel, BorderLayout.EAST);
-        frame.add(selectionOverlayPanel, BorderLayout.NORTH);
-        frame.add(overlayImgPanel, BorderLayout.NORTH);
-        frame.add(imgPanel, BorderLayout.CENTER);
-        frame.add(btnPanel, BorderLayout.SOUTH);
+        super.add(histogramPanel, BorderLayout.EAST);
+        super.add(selectionOverlayPanel, BorderLayout.NORTH);
+        super.add(overlayImgPanel, BorderLayout.NORTH);
+        super.add(imgPanel, BorderLayout.CENTER);
+        super.add(btnPanel, BorderLayout.SOUTH);
 
         btnPanel.add(rBtn);
         btnPanel.add(gBtn);
@@ -78,12 +76,12 @@ public class GUI extends JFrame{
 
         selectArea(imgPanel);
 
-        frame.getContentPane().add(BorderLayout.NORTH, bar);
+        super.getContentPane().add(BorderLayout.NORTH, bar);
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        frame.setSize(screenSize);
-        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-        frame.setResizable(false);
-        frame.setVisible(true);
+        super.setSize(screenSize);
+        super.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        super.setResizable(false);
+        super.setVisible(true);
     }
 
     /** Display a new image in window */
@@ -91,8 +89,8 @@ public class GUI extends JFrame{
         JLabel imgLabel = new JLabel(new ImageIcon(img));
         imgPanel.removeAll();
         imgPanel.add(imgLabel);
-        frame.revalidate();
-        frame.repaint();
+        super.revalidate();
+        super.repaint();
         imgAbsolutePosition.setSize(imgLabel.getX(),imgLabel.getY());
     }
 
@@ -220,12 +218,12 @@ public class GUI extends JFrame{
                 (int)imgAbsolutePosition.getHeight()+y+bar.getHeight(),
                 img.getWidth(), img.getHeight());
         overlayImgPanel.setVisible(true);
-        frame.revalidate();
-        frame.repaint();
+        super.revalidate();
+        super.repaint();
     }
     public void resetOverlay(){
         overlayImgPanel.setVisible(false);
-        frame.revalidate();
-        frame.repaint();
+        super.revalidate();
+        super.repaint();
     }
 }

@@ -1,10 +1,12 @@
 package Editor;
 
+import Editor.GUI.Controllers.FileController;
 import Editor.GUI.GUI;
 import Editor.GUI.KeyboardController;
 import Editor.GUI.Modal;
+import Editor.ImageControllers.InputImageController;
 import ImageTools.ImagesList;
-import ImageTools.RGBEditor;
+import ImageTools.AlterRGB;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -17,23 +19,24 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class ColorEditor {
     public static void main(String[] args) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
-        GUI gui = new GUI("Color editor");
-        KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
-        KeyboardController controller = new KeyboardController(manager);
-        RGBEditor rgb = new RGBEditor();
+        GUI gui = new GUI();
+        gui.setTitle("Color Editor");
+        KeyboardController controller = new KeyboardController(KeyboardFocusManager.getCurrentKeyboardFocusManager());
+        AlterRGB rgb = new AlterRGB();
         AtomicReference<File> inputFile = new AtomicReference<>();
-        AtomicReference<ImageController> img = new AtomicReference<>();
+        AtomicReference<InputImageController> img = new AtomicReference<>();
         AtomicBoolean isCropped = new AtomicBoolean(false);
+
+        //FileController fileController = new FileController(gui, rgb);
 
         gui.openFileListener(a -> {
             inputFile.set(gui.fileLoader("Select an image to open..."));
             try {
-                img.set(new ImageController(ImagesList.toBuffImg(inputFile.get()), gui.getImagePanelSize()));
+                img.set(new InputImageController(ImagesList.toBuffImg(inputFile.get()), gui.getImagePanelSize()));
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
                 rgb.setImage(img.get().getScaledInputImg());
-                gui.setImage(rgb.getAlteredImage());
             }
         });
         gui.saveFileListener(a -> {
@@ -72,17 +75,16 @@ public class ColorEditor {
 
         gui.setSelectionAction(selection -> {
             img.get().cropImage(selection);
-            rgb.setImage(img.get().getScaledCroppedImg());
             gui.setImage(img.get().getScaledInputImg());
-            gui.setOverlayImage(rgb.getAlteredImage(), (int)selection.getX(), (int)selection.getY());
+            gui.setOverlayImage(rgb.alterImage(img.get().getScaledCroppedImg()), (int)selection.getX(), (int)selection.getY());
             isCropped.set(true);
         });
 
         rgb.onChange(() -> {
             if(isCropped.get())
-                gui.setOverlayImage(rgb.getAlteredImage(), (int)img.get().getSelection().getX(), (int)img.get().getSelection().getY());
+                gui.setOverlayImage(rgb.alterImage(img.get().getScaledCroppedImg()), (int)img.get().getSelection().getX(), (int)img.get().getSelection().getY());
             else
-                gui.setImage(rgb.getAlteredImage());
+                gui.setImage(rgb.alterImage(img.get().getScaledInputImg()));
         });
 
         controller.decreaseAction(() -> {
@@ -112,9 +114,9 @@ public class ColorEditor {
                 // RELEASED preview key action
                 () -> {
                     if(isCropped.get()){
-                        gui.setOverlayImage(rgb.getAlteredImage(), (int)img.get().getSelection().getX(), (int)img.get().getSelection().getY());
+                        gui.setOverlayImage(rgb.alterImage(img.get().getScaledCroppedImg()), (int)img.get().getSelection().getX(), (int)img.get().getSelection().getY());
                     }else{
-                        gui.setImage(rgb.getAlteredImage());
+                        gui.setImage(rgb.alterImage(img.get().getScaledInputImg()));
                     }
         });
     }

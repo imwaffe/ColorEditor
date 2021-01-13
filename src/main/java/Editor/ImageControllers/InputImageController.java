@@ -18,16 +18,17 @@
  * image used for display, allows the selection of a portion of the image to alter just that, and keeping track of
  * the crop selection, the scale factor allows the application to save the full size image (not only the scaled one).
  *
+ *               ######       CC-BY-SA Luca Armellin @imwaffe luca.armellin@outlook.it        ######
  */
 
-package Editor;
+package Editor.ImageControllers;
 
 import ImageTools.ImageScaler;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-public class ImageController {
+public class InputImageController {
     private BufferedImage fullSizeInputImg, scaledInputImg, scaledCroppedImg;
     private Rectangle selection, fullSizeSelection;
     private class ScaleFactor {
@@ -45,7 +46,7 @@ public class ImageController {
     }
     private ScaleFactor scaleFactor = new ScaleFactor();
 
-    public ImageController(BufferedImage input, Dimension maxSize){
+    public InputImageController(BufferedImage input, Dimension maxSize){
         fullSizeInputImg = input;
         scaledInputImg = ImageScaler.resizeImage(fullSizeInputImg, maxSize);
         scaleFactor.setSize(
