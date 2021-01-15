@@ -151,6 +151,7 @@ public class AlterRGB extends AlterColor{
     }
 
     /** Resets everything */
+    @Override
     public void reset(){
         scaleR=MIN_VAL;
         scaleB=MIN_VAL;

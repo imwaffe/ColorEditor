@@ -56,6 +56,11 @@ public class AlterLab extends AlterColor{
         return null;
     }
 
+    @Override
+    public void reset() {
+
+    }
+
    /* private void scale(int rR, int rG, int rB) throws IllegalArgumentException{
         double[] outputRgbRaster = new double[originalRgbRaster.length];
         System.arraycopy(originalRgbRaster,0,outputRgbRaster,0,originalRgbRaster.length);

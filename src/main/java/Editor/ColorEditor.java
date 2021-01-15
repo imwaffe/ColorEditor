@@ -1,11 +1,11 @@
 package Editor;
 
-import Editor.GUI.Controllers.FileController.FileChooserController;
-import Editor.GUI.Controllers.FileController.MockFileController;
+import Editor.GUI.Controllers.FileController.*;
 import Editor.GUI.Controllers.GuiObserver;
 import Editor.GUI.Controllers.KeyboardController;
 import Editor.GUI.GUI;
 import Editor.ImageControllers.ImageProxy;
+import ImageTools.AlterColor.AlterColor;
 import ImageTools.AlterColor.AlterRGB;
 
 import javax.swing.*;
@@ -13,10 +13,10 @@ import java.awt.*;
 
 public class ColorEditor {
     public static void main(String[] args) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
-        AlterRGB rgb = new AlterRGB();
+        AlterColor rgb = new AlterRGB();
         ImageProxy imageProxy = new ImageProxy(rgb);
         GuiObserver gui = new GuiObserver(imageProxy);
-        FileChooserController fileController = new FileChooserController(gui, imageProxy);
+        FileController fileController = new MockFileController(gui, imageProxy);
         KeyboardController controller = new KeyboardController(KeyboardFocusManager.getCurrentKeyboardFocusManager());
 
         fileController.addObserver(gui);
