@@ -1,10 +1,12 @@
-package ImageTools;
+package ImageTools.AlterColor;
+
+import ImageTools.RGB2LAB;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.util.Arrays;
 
-public class AlterLab implements AlterColor{
+public class AlterLab extends AlterColor{
     private final static int RED    = 16;   //trailing zeroes of 0xFF0000 (red channel bit mask)
     private final static int GREEN  = 8;    //trailing zeroes of 0x00FF00 (green channel bit mask)
     private final static int BLUE   = 0;    //trailing zeroes of 0x0000FF (blue channel bit mask)

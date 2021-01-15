@@ -9,19 +9,16 @@
  *               ######       CC-BY-SA Luca Armellin @imwaffe luca.armellin@outlook.it        ######
  * */
 
-package ImageTools;
-
-import Editor.ImageControllers.InputImageController;
+package ImageTools.AlterColor;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Observable;
 import java.util.Observer;
 
 
-public class AlterRGB extends Observable implements AlterColor{
+public class AlterRGB extends AlterColor{
     private final static int RED    = 16;   //trailing zeroes of 0xFF0000 (red channel bit mask)
     private final static int GREEN  = 8;    //trailing zeroes of 0x00FF00 (green channel bit mask)
     private final static int BLUE   = 0;    //trailing zeroes of 0x0000FF (blue channel bit mask)
@@ -37,8 +34,6 @@ public class AlterRGB extends Observable implements AlterColor{
      * originalRgbRaster is the RGB raster of the original image, this will be used to write the altered image.
      * alteredRgbRaster is the RGB raster containing the color-altered version of the original image
      * */
-    private int[] originalRgbRaster, alteredRgbRaster;
-    private int imgWidth, imgHeight;
 
     private int scaleR=MIN_VAL, scaleG=MIN_VAL, scaleB=MIN_VAL;
 
@@ -47,23 +42,7 @@ public class AlterRGB extends Observable implements AlterColor{
      * of each pixel to be halved) */
     private float rCoeff=1, gCoeff=1, bCoeff=1;
 
-    /** Set the actual image */
-    public void setImage(BufferedImage img){
-        originalRgbRaster = ((DataBufferInt) img.getRaster().getDataBuffer()).getData();
-        imgWidth = img.getWidth();
-        imgHeight = img.getHeight();
-        alteredRgbRaster = imageColorsChanger(originalRgbRaster);
-        onChangeFunction.run();
-    }
-
-    public void setImage(InputImageController img){
-        setImage(img.getScaledInputImg());
-    }
-
     /** Returns a BufferedImage given an int[] RGB raster. If no size is given, the size of displayed image is used. */
-    public BufferedImage getBufferedImage(int[] rgbRaster){
-        return getBufferedImage(rgbRaster, imgWidth, imgHeight);
-    }
     public static BufferedImage getBufferedImage(int[] rgbRaster, int width, int height){
         BufferedImage buffImg = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         buffImg.setRGB(0,0, width, height,rgbRaster,0, width);
@@ -81,8 +60,8 @@ public class AlterRGB extends Observable implements AlterColor{
         gCoeff=(float)(MAX_VAL-rG)/(float)MAX_VAL;
         bCoeff=(float)(MAX_VAL-rB)/(float)MAX_VAL;
 
-        this.alteredRgbRaster = imageColorsChanger(originalRgbRaster);
-        onChangeFunction.run();
+        setChanged();
+        notifyObservers();
     }
 
     /** Returns an RGB raster by modifying the one passed as parameter according to rCoeff, gCoeff and bCoeff
@@ -108,6 +87,7 @@ public class AlterRGB extends Observable implements AlterColor{
     /** The following functions decrease or increase the coefficient of each channels.
      * Both require three boolean parameters, representing the channel(s) (R, G or B) that will be emphasized
      * or attenuated */
+    @Override
     public void decreaseByOne(boolean r, boolean g, boolean b){
         if(!r && !b && !g)
             return;
@@ -138,6 +118,7 @@ public class AlterRGB extends Observable implements AlterColor{
             changeColors(Math.max(scaleR, MIN_VAL), Math.max(scaleG, MIN_VAL), Math.max(scaleB, MIN_VAL));
         }catch(IllegalArgumentException ignored){}
     }
+    @Override
     public void increaseByOne(boolean r, boolean g, boolean b){
         if(!r && !b && !g)
             return;
@@ -177,26 +158,18 @@ public class AlterRGB extends Observable implements AlterColor{
         rCoeff=1;
         gCoeff=1;
         bCoeff=1;
-        alteredRgbRaster = Arrays.copyOf(originalRgbRaster,originalRgbRaster.length);
     }
 
-    /** Returns the BufferedImage of the original raster (the resized one used as a preview). */
-    public BufferedImage getOriginalImage(){
-        return getBufferedImage(originalRgbRaster);
-    }
-
+    @Override
     public String toStringCoeff(){
         return "[R"+ rCoeff +",G"+ gCoeff +",B"+ bCoeff +"]";
     }
 
     /** Returns the BufferedImage of the original raster (the resized one used as a preview). */
+    @Override
     public BufferedImage alterImage(BufferedImage input){
         int[] alteredImg = imageColorsChanger(((DataBufferInt) input.getRaster().getDataBuffer()).getData());
         return getBufferedImage(alteredImg, input.getWidth(), input.getHeight());
-    }
-
-    public void onChange(Runnable onChangeFunction){
-        this.onChangeFunction = onChangeFunction;
     }
 
 }

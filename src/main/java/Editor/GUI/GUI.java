@@ -14,7 +14,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.function.Consumer;
 
-public class GUI extends JFrame {
+public class GUI extends JFrame{
     private final JPanel imgPanel = new JPanel();
     private final JPanel selectionOverlayPanel = new JPanel();
     private final JPanel histogramPanel = new JPanel();

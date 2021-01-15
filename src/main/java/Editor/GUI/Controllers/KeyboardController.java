@@ -4,13 +4,14 @@
  *               ######       CC-BY-SA Luca Armellin @imwaffe luca.armellin@outlook.it        ######
  * */
 
-package Editor.GUI;
+package Editor.GUI.Controllers;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.util.Observable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class KeyboardController {
+public class KeyboardController extends Observable {
     public KeyboardFocusManager kbManager;
 
     private static final int LEFT_KEY = 37;
