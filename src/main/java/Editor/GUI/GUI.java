@@ -1,5 +1,7 @@
 package Editor.GUI;
 
+import org.w3c.dom.css.Rect;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -12,6 +14,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.function.Consumer;
 
 public class GUI extends JFrame{
@@ -30,7 +33,7 @@ public class GUI extends JFrame{
 
     private final JMenuItem menuSettingsHistograms = new JMenuItem("Show histograms...");
 
-    private Consumer<Rectangle> selectedAction;
+    private ArrayList<Consumer<Rectangle>> selectedActions = new ArrayList<>();
     private Dimension imgAbsolutePosition = new Dimension(0,0);
 
     public enum Channel {RED, GREEN, BLUE}
@@ -136,9 +139,10 @@ public class GUI extends JFrame{
         return fileChooser.getSelectedFile();
     }
 
-    public void setSelectionAction(Consumer<Rectangle> selectedAction) {
-        this.selectedAction = selectedAction;
+    public void addSelectionAction(Consumer<Rectangle> selectedAction) {
+        selectedActions.add(selectedAction);
     }
+
     private void selectArea(JPanel parent){
         Rectangle selection = new Rectangle();
 
@@ -193,7 +197,8 @@ public class GUI extends JFrame{
                 );
                 selection.setSize(selectionOverlayPanel.getWidth(), selectionOverlayPanel.getHeight());
                 selectionOverlayPanel.setSize(0,0);
-                selectedAction.accept(selection);
+                for(Consumer<Rectangle> selectedAction : selectedActions)
+                    selectedAction.accept(selection);
             }
 
             @Override
@@ -206,24 +211,5 @@ public class GUI extends JFrame{
 
             }
         });
-    }
-    public void setOverlayImage(BufferedImage img, int x, int y){
-        ImageIcon imgIcn = new ImageIcon(img);
-        JLabel imgLabel = new JLabel(imgIcn);
-        overlayImgPanel.removeAll();
-        overlayImgPanel.setBorder(new EmptyBorder(-5,0,0,0));
-        overlayImgPanel.add(imgLabel);
-        overlayImgPanel.setBounds(
-                (int)imgAbsolutePosition.getWidth()+x,
-                (int)imgAbsolutePosition.getHeight()+y+bar.getHeight(),
-                img.getWidth(), img.getHeight());
-        overlayImgPanel.setVisible(true);
-        super.revalidate();
-        super.repaint();
-    }
-    public void resetOverlay(){
-        overlayImgPanel.setVisible(false);
-        super.revalidate();
-        super.repaint();
     }
 }

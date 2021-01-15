@@ -13,19 +13,18 @@ import java.awt.*;
 
 public class ColorEditor {
     public static void main(String[] args) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
-        GUI gui = new GUI();
         AlterRGB rgb = new AlterRGB();
         ImageProxy imageProxy = new ImageProxy(rgb);
-        FileChooserController fileController = new MockFileController(gui, imageProxy);
+        GuiObserver gui = new GuiObserver(imageProxy);
+        FileChooserController fileController = new FileChooserController(gui, imageProxy);
         KeyboardController controller = new KeyboardController(KeyboardFocusManager.getCurrentKeyboardFocusManager());
-        GuiObserver guiObserver = new GuiObserver(gui, imageProxy);
 
-        rgb.addObserver(guiObserver);
-        fileController.addObserver(guiObserver);
+        fileController.addObserver(gui);
+        rgb.addObserver(gui);
 
         gui.setTitle("Color Editor");
 
-        gui.setSelectionAction(selection -> {
+        gui.addSelectionAction(selection -> {
             imageProxy.cropImage(selection);
             gui.setImage(imageProxy.getScaledOutputImage());
         });
