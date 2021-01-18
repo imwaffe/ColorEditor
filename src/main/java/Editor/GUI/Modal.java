@@ -11,26 +11,26 @@ public class Modal extends JDialog {
     }
     public Modal(Frame owner, String title){
         super(owner,title,false);
-        super.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        super.setSize(200,100);
-        super.setResizable(false);
-        super.setLocationRelativeTo(null);
-        Container cp = super.getContentPane();
+        disableClose();
+        setSize(200,100);
+        setResizable(false);
+        setLocationRelativeTo(null);
+        Container cp = getContentPane();
         cp.add(message);
     }
 
     public void setMessage(String text){
         message.setText(text);
-        super.validate();
-        super.repaint();
-        super.setVisible(true);
+        validate();
+        repaint();
+        setVisible(true);
     }
 
     public void enableClose(){
-        super.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
     }
 
     public void disableClose(){
-        super.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
     }
 }

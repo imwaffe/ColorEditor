@@ -14,7 +14,6 @@ package ImageTools.AlterColor;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.util.ArrayList;
-import java.util.Observable;
 import java.util.Observer;
 
 

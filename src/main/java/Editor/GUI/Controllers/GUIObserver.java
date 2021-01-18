@@ -7,10 +7,10 @@ import javax.swing.*;
 import java.util.Observable;
 import java.util.Observer;
 
-public class GuiObserver extends GUI implements Observer{
+public class GUIObserver extends GUI implements Observer{
     private final ImageProxy imageProxy;
 
-    public GuiObserver(ImageProxy imageProxy) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
+    public GUIObserver(ImageProxy imageProxy) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
         super();
         this.imageProxy = imageProxy;
     }

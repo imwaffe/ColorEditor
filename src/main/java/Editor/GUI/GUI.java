@@ -123,20 +123,8 @@ public class GUI extends JFrame{
     public void saveFileListener(ActionListener action){
         menuFileSave.addActionListener(action);
     }
-    public void setHistogram(JPanel hist) {
-        histogramPanel.add(hist);
-    }
-
-    /** Shows a graphical file chooser and returns the selected File */
-    public File fileLoader(String title){
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle(title);
-        FileFilter filesFilter = new FileNameExtensionFilter("Image files", ImageIO.getReaderFileSuffixes());
-        fileChooser.setAcceptAllFileFilterUsed(false);
-        fileChooser.setFileFilter(filesFilter);
-        fileChooser.setMultiSelectionEnabled(false);
-        fileChooser.showOpenDialog(GUI.this);
-        return fileChooser.getSelectedFile();
+    public JPanel getHistogramPanel() {
+        return histogramPanel;
     }
 
     public void addSelectionAction(Consumer<Rectangle> selectedAction) {

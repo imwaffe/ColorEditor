@@ -1,21 +1,31 @@
 package Histograms;
 
+import Editor.ImageControllers.ImageProxy;
 import org.knowm.xchart.XChartPanel;
 import org.knowm.xchart.XYChart;
 import org.knowm.xchart.XYChartBuilder;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
-public class HistCharts {
+public class HistCharts implements Observer {
     private List<XYChart> charts = new ArrayList<>();
     private final static int CHANNELS_NUMBER = 3;
     private final static double CHANNEL_COLOR_LVLS = 256;
 
-    public HistCharts(){
+    private JPanel histogramPanel = new JPanel();
+    private final ImageProxy imageProxy;
+
+    public HistCharts(JPanel guiHistogramPanel, ImageProxy imageProxy){
+        this.imageProxy = imageProxy;
+        guiHistogramPanel.add(histogramPanel);
+
         for (int i = 0; i < CHANNELS_NUMBER; i++) {
             XYChart chart = new XYChartBuilder().xAxisTitle("X").yAxisTitle("Y").width(600).height(400).build();
             chart.getStyler().setYAxisMin(0.0);
@@ -49,5 +59,17 @@ public class HistCharts {
     }
     public XChartPanel getB(){
         return new XChartPanel(charts.get(2));
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        loadImage(imageProxy.getScaledOutputImage());
+
+        try {
+            histogramPanel.remove(0);
+        } catch (ArrayIndexOutOfBoundsException e){};
+        histogramPanel.add(getR());
+        histogramPanel.revalidate();
+        histogramPanel.repaint();
     }
 }

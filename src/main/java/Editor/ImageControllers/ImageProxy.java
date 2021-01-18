@@ -47,6 +47,11 @@ public class ImageProxy {
         return isCropped;
     }
 
+    public void reset(){
+        setCropped(false);
+        alterColor.reset();
+    }
+
     public AlterColor getAlterColor() {
         return alterColor;
     }

@@ -1,10 +1,11 @@
 package Editor;
 
 import Editor.GUI.Controllers.FileController.*;
-import Editor.GUI.Controllers.GuiObserver;
+import Editor.GUI.Controllers.GUIObserver;
 import Editor.GUI.Controllers.KeyboardController;
 import Editor.GUI.GUI;
 import Editor.ImageControllers.ImageProxy;
+import Histograms.Hist;
 import ImageTools.AlterColor.AlterColor;
 import ImageTools.AlterColor.AlterRGB;
 
@@ -13,14 +14,17 @@ import java.awt.*;
 
 public class ColorEditor {
     public static void main(String[] args) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
-        AlterColor rgb = new AlterRGB();
-        ImageProxy imageProxy = new ImageProxy(rgb);
-        GuiObserver gui = new GuiObserver(imageProxy);
+        AlterColor alterColor = new AlterRGB();
+        ImageProxy imageProxy = new ImageProxy(alterColor);
+        GUIObserver gui = new GUIObserver(imageProxy);
         FileController fileController = new MockFileController(gui, imageProxy);
         KeyboardController controller = new KeyboardController(KeyboardFocusManager.getCurrentKeyboardFocusManager());
+        //Hist histogram = new Hist(gui.getHistogramPanel(),imageProxy);
 
         fileController.addObserver(gui);
-        rgb.addObserver(gui);
+        //fileController.addObserver(histogram);
+        alterColor.addObserver(gui);
+        //alterColor.addObserver(histogram);
 
         gui.setTitle("Color Editor");
 
@@ -30,21 +34,20 @@ public class ColorEditor {
         });
 
         controller.decreaseAction(() -> {
-            rgb.decreaseByOne(
+            alterColor.decreaseByOne(
                     gui.getSelectedChannel(GUI.Channel.RED),
                     gui.getSelectedChannel(GUI.Channel.GREEN),
                     gui.getSelectedChannel(GUI.Channel.BLUE));
         });
         controller.increaseAction(() -> {
-            rgb.increaseByOne(
+            alterColor.increaseByOne(
                     gui.getSelectedChannel(GUI.Channel.RED),
                     gui.getSelectedChannel(GUI.Channel.GREEN),
                     gui.getSelectedChannel(GUI.Channel.BLUE));
         });
         controller.resetAction(() -> {
-            imageProxy.setCropped(false);
+            imageProxy.reset();
             gui.setImage(imageProxy.getScaledOriginalImage());
-            rgb.reset();
         });
         controller.previewAction(
             // PRESSED preview key action
