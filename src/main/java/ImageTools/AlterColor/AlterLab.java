@@ -1,10 +1,12 @@
-package ImageTools;
+package ImageTools.AlterColor;
+
+import ImageTools.RGB2LAB;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.util.Arrays;
 
-public class LabEditor{
+public class AlterLab extends AlterColor{
     private final static int RED    = 16;   //trailing zeroes of 0xFF0000 (red channel bit mask)
     private final static int GREEN  = 8;    //trailing zeroes of 0x00FF00 (green channel bit mask)
     private final static int BLUE   = 0;    //trailing zeroes of 0x0000FF (blue channel bit mask)
@@ -21,7 +23,7 @@ public class LabEditor{
 
     private int scaleR=MIN_VAL, scaleG=MIN_VAL, scaleB=MIN_VAL;
 
-    public LabEditor(BufferedImage img){
+    public AlterLab(BufferedImage img){
         originalRgbRaster = RGB2LAB.rgb2lab(((DataBufferInt) img.getRaster().getDataBuffer()).getData(), COLOR_SPACE, REF_WHITE);
         outputRgbRaster = Arrays.copyOf(originalRgbRaster,originalRgbRaster.length);
         width = img.getWidth();
@@ -32,6 +34,31 @@ public class LabEditor{
         BufferedImage buffImg = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         buffImg.setRGB(0,0,width,height,RGB2LAB.lab2rgb(outputRgbRaster, COLOR_SPACE, REF_WHITE),0,width);
         return buffImg;
+    }
+
+    @Override
+    public void increaseByOne(boolean ch1, boolean ch2, boolean ch3) {
+
+    }
+
+    @Override
+    public void decreaseByOne(boolean ch1, boolean ch2, boolean ch3) {
+
+    }
+
+    @Override
+    public BufferedImage alterImage(BufferedImage input) {
+        return null;
+    }
+
+    @Override
+    public String toStringCoeff() {
+        return null;
+    }
+
+    @Override
+    public void reset() {
+
     }
 
    /* private void scale(int rR, int rG, int rB) throws IllegalArgumentException{

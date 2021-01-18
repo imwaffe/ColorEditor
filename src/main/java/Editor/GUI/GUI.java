@@ -1,5 +1,7 @@
 package Editor.GUI;
 
+import org.w3c.dom.css.Rect;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -12,10 +14,10 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.function.Consumer;
 
 public class GUI extends JFrame{
-    private final JFrame frame = new JFrame();
     private final JPanel imgPanel = new JPanel();
     private final JPanel selectionOverlayPanel = new JPanel();
     private final JPanel histogramPanel = new JPanel();
@@ -31,15 +33,14 @@ public class GUI extends JFrame{
 
     private final JMenuItem menuSettingsHistograms = new JMenuItem("Show histograms...");
 
-    private Consumer<Rectangle> selectedAction;
+    private ArrayList<Consumer<Rectangle>> selectedActions = new ArrayList<>();
     private Dimension imgAbsolutePosition = new Dimension(0,0);
 
     public enum Channel {RED, GREEN, BLUE}
 
-    public GUI(String title) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
-        frame.setLayout(new BorderLayout());
-        frame.setTitle(title);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    public GUI() throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
+        super.setLayout(new BorderLayout());
+        super.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         imgPanel.setBackground(new Color(0,0,0));
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         JPanel btnPanel = new JPanel();
@@ -51,15 +52,15 @@ public class GUI extends JFrame{
         selectionOverlayPanel.setSize(0,0);
 
         histogramPanel.setBackground(new Color(102, 102, 102));
-        histogramPanel.setPreferredSize(new Dimension(300,frame.getHeight()));
+        histogramPanel.setPreferredSize(new Dimension(300,super.getHeight()));
         //imgPanel.setSize(imgPanel.getWidth()-histogramPanel.getWidth(), imgPanel.getHeight());
 
         //frame.add(new MyCanvas());
-        frame.add(histogramPanel, BorderLayout.EAST);
-        frame.add(selectionOverlayPanel, BorderLayout.NORTH);
-        frame.add(overlayImgPanel, BorderLayout.NORTH);
-        frame.add(imgPanel, BorderLayout.CENTER);
-        frame.add(btnPanel, BorderLayout.SOUTH);
+        super.add(histogramPanel, BorderLayout.EAST);
+        super.add(selectionOverlayPanel, BorderLayout.NORTH);
+        super.add(overlayImgPanel, BorderLayout.NORTH);
+        super.add(imgPanel, BorderLayout.CENTER);
+        super.add(btnPanel, BorderLayout.SOUTH);
 
         btnPanel.add(rBtn);
         btnPanel.add(gBtn);
@@ -78,12 +79,12 @@ public class GUI extends JFrame{
 
         selectArea(imgPanel);
 
-        frame.getContentPane().add(BorderLayout.NORTH, bar);
+        super.getContentPane().add(BorderLayout.NORTH, bar);
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        frame.setSize(screenSize);
-        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-        frame.setResizable(false);
-        frame.setVisible(true);
+        super.setSize(screenSize);
+        super.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        super.setResizable(false);
+        super.setVisible(true);
     }
 
     /** Display a new image in window */
@@ -91,8 +92,8 @@ public class GUI extends JFrame{
         JLabel imgLabel = new JLabel(new ImageIcon(img));
         imgPanel.removeAll();
         imgPanel.add(imgLabel);
-        frame.revalidate();
-        frame.repaint();
+        super.revalidate();
+        super.repaint();
         imgAbsolutePosition.setSize(imgLabel.getX(),imgLabel.getY());
     }
 
@@ -122,25 +123,14 @@ public class GUI extends JFrame{
     public void saveFileListener(ActionListener action){
         menuFileSave.addActionListener(action);
     }
-    public void setHistogram(JPanel hist) {
-        histogramPanel.add(hist);
+    public JPanel getHistogramPanel() {
+        return histogramPanel;
     }
 
-    /** Shows a graphical file chooser and returns the selected File */
-    public File fileLoader(String title){
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle(title);
-        FileFilter filesFilter = new FileNameExtensionFilter("Image files", ImageIO.getReaderFileSuffixes());
-        fileChooser.setAcceptAllFileFilterUsed(false);
-        fileChooser.setFileFilter(filesFilter);
-        fileChooser.setMultiSelectionEnabled(false);
-        fileChooser.showOpenDialog(GUI.this);
-        return fileChooser.getSelectedFile();
+    public void addSelectionAction(Consumer<Rectangle> selectedAction) {
+        selectedActions.add(selectedAction);
     }
 
-    public void setSelectionAction(Consumer<Rectangle> selectedAction) {
-        this.selectedAction = selectedAction;
-    }
     private void selectArea(JPanel parent){
         Rectangle selection = new Rectangle();
 
@@ -195,7 +185,8 @@ public class GUI extends JFrame{
                 );
                 selection.setSize(selectionOverlayPanel.getWidth(), selectionOverlayPanel.getHeight());
                 selectionOverlayPanel.setSize(0,0);
-                selectedAction.accept(selection);
+                for(Consumer<Rectangle> selectedAction : selectedActions)
+                    selectedAction.accept(selection);
             }
 
             @Override
@@ -208,24 +199,5 @@ public class GUI extends JFrame{
 
             }
         });
-    }
-    public void setOverlayImage(BufferedImage img, int x, int y){
-        ImageIcon imgIcn = new ImageIcon(img);
-        JLabel imgLabel = new JLabel(imgIcn);
-        overlayImgPanel.removeAll();
-        overlayImgPanel.setBorder(new EmptyBorder(-5,0,0,0));
-        overlayImgPanel.add(imgLabel);
-        overlayImgPanel.setBounds(
-                (int)imgAbsolutePosition.getWidth()+x,
-                (int)imgAbsolutePosition.getHeight()+y+bar.getHeight(),
-                img.getWidth(), img.getHeight());
-        overlayImgPanel.setVisible(true);
-        frame.revalidate();
-        frame.repaint();
-    }
-    public void resetOverlay(){
-        overlayImgPanel.setVisible(false);
-        frame.revalidate();
-        frame.repaint();
     }
 }
