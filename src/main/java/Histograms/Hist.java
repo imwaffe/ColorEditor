@@ -16,19 +16,19 @@ import java.awt.image.Raster;
 import java.util.Observable;
 import java.util.Observer;
 
-public class Hist implements Observer {
+public class Hist implements Runnable {
     public final static int RED    = 16;   //trailing zeroes of 0xFF0000 (red channel bit mask)
     public final static int GREEN  = 8;    //trailing zeroes of 0x00FF00 (green channel bit mask)
     public final static int BLUE   = 0;    //trailing zeroes of 0x0000FF (blue channel bit mask)
     private final static int BINS  = 256;
 
-    private JPanel histogramPanel = new JPanel();
-    private final ImageProxy imageProxy;
-    private Dimension preferredSize = new Dimension(150,150);
+    protected JPanel histogramPanel = new JPanel();
+    protected final ImageProxy imageProxy;
+    protected Dimension preferredSize = new Dimension(150,150);
 
-    private SimpleHistogramDataset reds = new SimpleHistogramDataset("Red");
-    private SimpleHistogramDataset greens = new SimpleHistogramDataset("Green");
-    private SimpleHistogramDataset blues = new SimpleHistogramDataset("Blue");
+    protected SimpleHistogramDataset reds = new SimpleHistogramDataset("Red");
+    protected SimpleHistogramDataset greens = new SimpleHistogramDataset("Green");
+    protected SimpleHistogramDataset blues = new SimpleHistogramDataset("Blue");
 
     public Hist(JPanel guiHistogramPanel, ImageProxy imageProxy){
         guiHistogramPanel.add(histogramPanel);
@@ -57,7 +57,7 @@ public class Hist implements Observer {
         blues.addObservations(values);
     }
 
-    private static JFreeChart createChart(SimpleHistogramDataset dataset){
+    protected static JFreeChart createChart(SimpleHistogramDataset dataset){
         final JFreeChart chart = ChartFactory.createXYBarChart(
                 (String) dataset.getSeriesKey(0),
                 "X",
@@ -72,7 +72,7 @@ public class Hist implements Observer {
         return chart;
     }
 
-    private JPanel getPanel(JFreeChart chart){
+    protected JPanel getPanel(JFreeChart chart){
         ChartPanel cp = new ChartPanel(chart);
         cp.setPreferredSize(preferredSize);
         return cp;
@@ -98,7 +98,8 @@ public class Hist implements Observer {
     }
 
     @Override
-    public void update(Observable o, Object arg) {
+    public void run() {
+        System.out.print("Executing");
         loadImage(imageProxy.getScaledOutputImage());
         JPanel newPanel = getPanel(createChart(reds));
         newPanel.setPreferredSize(new Dimension(150,150));

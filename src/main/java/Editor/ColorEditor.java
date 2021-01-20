@@ -1,11 +1,12 @@
 package Editor;
 
-import Editor.GUI.Controllers.FileController.*;
+import Editor.GUI.Controllers.FileController.FileController;
+import Editor.GUI.Controllers.FileController.MockFileController;
 import Editor.GUI.Controllers.GUIObserver;
 import Editor.GUI.Controllers.KeyboardController;
 import Editor.GUI.GUI;
 import Editor.ImageControllers.ImageProxy;
-import Histograms.Hist;
+import Histograms.HistogramController;
 import ImageTools.AlterColor.AlterColor;
 import ImageTools.AlterColor.AlterRGB;
 
@@ -19,12 +20,12 @@ public class ColorEditor {
         GUIObserver gui = new GUIObserver(imageProxy);
         FileController fileController = new MockFileController(gui, imageProxy);
         KeyboardController controller = new KeyboardController(KeyboardFocusManager.getCurrentKeyboardFocusManager());
-        //Hist histogram = new Hist(gui.getHistogramPanel(),imageProxy);
+        HistogramController histogram = new HistogramController(gui.getRightPanel(),imageProxy);
 
         fileController.addObserver(gui);
-        //fileController.addObserver(histogram);
+        fileController.addObserver(histogram);
         alterColor.addObserver(gui);
-        //alterColor.addObserver(histogram);
+        alterColor.addObserver(histogram);
 
         gui.setTitle("Color Editor");
 
