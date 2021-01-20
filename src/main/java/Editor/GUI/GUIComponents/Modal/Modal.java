@@ -1,4 +1,4 @@
-package Editor.GUI;
+package Editor.GUI.GUIComponents.Modal;
 
 import javax.swing.*;
 import java.awt.*;

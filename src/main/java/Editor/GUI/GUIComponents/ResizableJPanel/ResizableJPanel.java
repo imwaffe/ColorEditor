@@ -1,4 +1,4 @@
-package Editor.GUI;
+package Editor.GUI.GUIComponents.ResizableJPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -53,9 +53,9 @@ public class ResizableJPanel extends JPanel {
                         panel.setPreferredSize(new Dimension(panel.getWidth() - e.getX(), panel.getHeight()));
                     if(resizableSide==ResizableSide.TOP)
                         panel.setPreferredSize(new Dimension(panel.getWidth(), panel.getHeight() - e.getY()));
+                    notifyResizeListeners();
                     panel.repaint();
                     panel.revalidate();
-                    notifyResizeListeners();
                 }
             }
 

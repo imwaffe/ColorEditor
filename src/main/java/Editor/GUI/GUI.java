@@ -1,5 +1,8 @@
 package Editor.GUI;
 
+import Editor.GUI.GUIComponents.ColorButton.ColorButton;
+import Editor.GUI.GUIComponents.ResizableJPanel.ResizableJPanel;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -109,7 +112,7 @@ public class GUI extends JFrame{
     public void saveFileListener(ActionListener action){
         menuFileSave.addActionListener(action);
     }
-    public JPanel getRightPanel() {
+    public ResizableJPanel getRightPanel() {
         return rightPanel;
     }
 

@@ -3,6 +3,7 @@ package Editor.GUI.Controllers.FileController;
 import Editor.GUI.GUI;
 import Editor.ImageControllers.ImageProxy;
 
+import javax.swing.*;
 import java.io.File;
 
 public class MockFileController extends FileChooserController{

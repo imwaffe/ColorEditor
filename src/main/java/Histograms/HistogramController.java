@@ -1,16 +1,19 @@
 package Histograms;
 
+import Editor.GUI.GUIComponents.ResizableJPanel.ResizableJPanel;
 import Editor.ImageControllers.ImageProxy;
 
-import javax.swing.*;
 import java.util.Observable;
 import java.util.Observer;
 
 public class HistogramController extends Hist implements Observer {
     private Thread t;
 
-    public HistogramController(JPanel guiHistogramPanel, ImageProxy imageProxy) {
+    public HistogramController(ResizableJPanel guiHistogramPanel, ImageProxy imageProxy) {
         super(guiHistogramPanel, imageProxy);
+        guiHistogramPanel.addResizeListener(a -> {
+            preferredSize = guiHistogramPanel.getPreferredSize();
+        });
     }
 
     @Override

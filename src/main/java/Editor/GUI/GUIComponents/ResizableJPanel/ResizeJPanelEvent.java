@@ -1,4 +1,4 @@
-package Editor.GUI;
+package Editor.GUI.GUIComponents.ResizableJPanel;
 
 import java.awt.event.ActionEvent;
 
