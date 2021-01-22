@@ -1,7 +1,6 @@
 package Editor;
 
-import Editor.GUI.Controllers.FileController.FileController;
-import Editor.GUI.Controllers.FileController.MockFileController;
+import Editor.GUI.Controllers.FileController.*;
 import Editor.GUI.Controllers.GUIObserver;
 import Editor.GUI.Controllers.KeyboardController;
 import Editor.GUI.GUI;
@@ -19,7 +18,7 @@ public class ColorEditor {
         ImageProxy imageProxy = new ImageProxy(alterColor);
         GUIObserver gui = new GUIObserver(imageProxy);
         FileController fileController = new MockFileController(gui, imageProxy);
-        KeyboardController controller = new KeyboardController(KeyboardFocusManager.getCurrentKeyboardFocusManager());
+        KeyboardController keyboardController = new KeyboardController(KeyboardFocusManager.getCurrentKeyboardFocusManager());
         HistogramController histogram = new HistogramController(gui.getRightPanel(),imageProxy);
 
         fileController.addObserver(gui);
@@ -34,23 +33,23 @@ public class ColorEditor {
             gui.setImage(imageProxy.getScaledOutputImage());
         });
 
-        controller.decreaseAction(() -> {
+        keyboardController.decreaseAction(() -> {
             alterColor.decreaseByOne(
                     gui.getSelectedChannel(GUI.Channel.RED),
                     gui.getSelectedChannel(GUI.Channel.GREEN),
                     gui.getSelectedChannel(GUI.Channel.BLUE));
         });
-        controller.increaseAction(() -> {
+        keyboardController.increaseAction(() -> {
             alterColor.increaseByOne(
                     gui.getSelectedChannel(GUI.Channel.RED),
                     gui.getSelectedChannel(GUI.Channel.GREEN),
                     gui.getSelectedChannel(GUI.Channel.BLUE));
         });
-        controller.resetAction(() -> {
+        keyboardController.resetAction(() -> {
             imageProxy.reset();
             gui.setImage(imageProxy.getScaledOriginalImage());
         });
-        controller.previewAction(
+        keyboardController.previewAction(
             // PRESSED preview key action
             () -> {
                 gui.setImage(imageProxy.getScaledOriginalImage());

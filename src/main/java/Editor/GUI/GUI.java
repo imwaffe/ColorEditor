@@ -16,7 +16,7 @@ import java.util.function.Consumer;
 public class GUI extends JFrame{
     private final JPanel imgPanel = new JPanel();
     private final JLabel imgLabel = new JLabel();
-    private ResizableJPanel rightPanel = new ResizableJPanel();
+    private final ResizableJPanel rightPanel = new ResizableJPanel();
 
     private final Color selectionOverlayColor = new Color(255,255,255,60);
 
@@ -36,20 +36,20 @@ public class GUI extends JFrame{
     public GUI() throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
         super.setLayout(new BorderLayout());
         super.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        imgPanel.setBackground(new Color(0,0,0));
+        imgPanel.setBackground(new Color(68, 68, 68));
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        ResizableJPanel btnPanel = new ResizableJPanel(ResizableJPanel.ResizableSide.TOP);
-        btnPanel.setPreferredSize(new Dimension(screenSize.width,150));
-        btnPanel.setBackground(new Color(19, 19, 19));
+        JPanel btnPanel = new JPanel();
+        btnPanel.setPreferredSize(new Dimension(screenSize.width,80));
+        btnPanel.setBackground(new Color(38, 38, 38));
 
-        rightPanel.setBackground(new Color(102, 102, 102));
+        rightPanel.setBackground(new Color(38, 38, 38));
         rightPanel.setPreferredSize(new Dimension(300,super.getHeight()));
 
+        super.add(btnPanel, BorderLayout.SOUTH);
         super.add(rightPanel, BorderLayout.EAST);
         JPanel overlayImgPanel = new JPanel();
         super.add(overlayImgPanel, BorderLayout.NORTH);
         super.add(imgPanel, BorderLayout.CENTER);
-        super.add(btnPanel, BorderLayout.SOUTH);
 
         btnPanel.add(rBtn);
         btnPanel.add(gBtn);

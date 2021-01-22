@@ -10,52 +10,72 @@ import org.jfree.data.statistics.SimpleHistogramDataset;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
+import java.util.ArrayList;
 
 public class Hist implements Runnable {
-    public final static int RED    = 16;   //trailing zeroes of 0xFF0000 (red channel bit mask)
-    public final static int GREEN  = 8;    //trailing zeroes of 0x00FF00 (green channel bit mask)
-    public final static int BLUE   = 0;    //trailing zeroes of 0x0000FF (blue channel bit mask)
     private final static int BINS  = 256;
 
     protected JPanel histogramPanel = new JPanel();
     protected final ImageProxy imageProxy;
-    protected Dimension preferredSize = new Dimension(150,150);
 
-    protected SimpleHistogramDataset reds = new SimpleHistogramDataset("Red");
-    protected SimpleHistogramDataset greens = new SimpleHistogramDataset("Green");
-    protected SimpleHistogramDataset blues = new SimpleHistogramDataset("Blue");
+    protected final JPanel parentPanel;
 
-    public Hist(JPanel guiHistogramPanel, ImageProxy imageProxy){
-        guiHistogramPanel.add(histogramPanel);
+    protected SimplerHistogramDataset reds = new SimplerHistogramDataset("Red");
+    protected SimplerHistogramDataset greens = new SimplerHistogramDataset("Green");
+    protected SimplerHistogramDataset blues = new SimplerHistogramDataset("Blue");
+
+    protected ArrayList<JFreeChart> charts = new ArrayList<>();
+    protected ArrayList<JPanel> histogramsPanels = new ArrayList<>();
+
+    public Hist(JPanel parentPanel, ImageProxy imageProxy){
+        this.parentPanel = parentPanel;
+        parentPanel.add(histogramPanel);
+
         this.imageProxy = imageProxy;
         for(int i=0; i<BINS; i+=2){
             reds.addBin(new SimpleHistogramBin(i, i+1));
             greens.addBin(new SimpleHistogramBin(i, i+1));
             blues.addBin(new SimpleHistogramBin(i, i+1));
         };
-        //preferredSize = guiHistogramPanel.getPreferredSize();
+        charts.add(createChart(reds));
+        charts.add(createChart(greens));
+        charts.add(createChart(blues));
+
+        histogramPanel.setLayout(new BoxLayout(histogramPanel,BoxLayout.Y_AXIS));
+
+        for(int i=0; i<charts.size(); i++) {
+            histogramsPanels.add(getPanel(charts.get(i)));
+            histogramPanel.add(histogramsPanels.get(i));
+        }
+
+        resizeHistograms(parentPanel.getPreferredSize());
     }
 
-    public void loadImage(BufferedImage img){
-        Raster raster = img.getRaster();
-        int w = img.getWidth();
-        int h = img.getHeight();
-        double[] values = new double[w*h];
-        values = raster.getSamples(0, 0, w, h, 0, values);
-        reds.clearObservations();
-        reds.addObservations(values);
-        values = raster.getSamples(0, 0, w, h, 1, values);
-        greens.clearObservations();
-        greens.addObservations(values);
-        values = raster.getSamples(0, 0, w, h, 2, values);
-        blues.clearObservations();
-        blues.addObservations(values);
+    private void refreshImage() throws CloneNotSupportedException {
+        int w = imageProxy.getScaledOutputImage().getWidth()/2;
+        int h = imageProxy.getScaledOutputImage().getHeight()/2;
+        double size = w*h;
+        Raster raster = imageProxy.getScaledOutputImage().getSubimage(0,0,w,h).getRaster();
+        double values[] = new double[w*h];
+        reds.setValues(raster.getSamples(0,0,w,h,0,values));
+        blues.setValues(raster.getSamples(0,0,w,h,1,values));
+        greens.setValues(raster.getSamples(0,0,w,h,2,values));
     }
 
-    protected static JFreeChart createChart(SimpleHistogramDataset dataset){
-        final JFreeChart chart = ChartFactory.createXYBarChart(
+    public void resizeHistograms(Dimension preferredSize){
+        preferredSize = new Dimension((int)preferredSize.getWidth(), (int)preferredSize.getHeight()/3);
+        for(JPanel panel : histogramsPanels)
+            panel.setPreferredSize(preferredSize);
+        histogramPanel.revalidate();
+        histogramPanel.repaint();
+    }
+    public void resizeHistograms(){
+        resizeHistograms(parentPanel.getPreferredSize());
+    }
+
+    private static JFreeChart createChart(SimpleHistogramDataset dataset){
+        JFreeChart chart = ChartFactory.createXYBarChart(
                 (String) dataset.getSeriesKey(0),
                 "X",
                 false,
@@ -69,9 +89,8 @@ public class Hist implements Runnable {
         return chart;
     }
 
-    protected JPanel getPanel(JFreeChart chart){
+    private JPanel getPanel(JFreeChart chart){
         ChartPanel cp = new ChartPanel(chart);
-        cp.setPreferredSize(preferredSize);
         return cp;
     }
 
@@ -96,15 +115,11 @@ public class Hist implements Runnable {
 
     @Override
     public void run() {
-        System.out.print("Executing");
-        loadImage(imageProxy.getScaledOutputImage());
-        JPanel newPanel = getPanel(createChart(reds));
-        newPanel.setPreferredSize(new Dimension(150,150));
-        newPanel.setBackground(new Color(255,0,0));
         try {
-            histogramPanel.remove(0);
-        } catch (ArrayIndexOutOfBoundsException e){};
-        histogramPanel.add(newPanel);
+            refreshImage();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
         histogramPanel.revalidate();
         histogramPanel.repaint();
     }

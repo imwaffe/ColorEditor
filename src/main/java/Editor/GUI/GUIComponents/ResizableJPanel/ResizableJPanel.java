@@ -12,7 +12,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ResizableJPanel extends JPanel {
     public enum ResizableSide {TOP, LEFT};
 
-    private final int borderWidth = 5;
+    private final int borderWidth = 3;
+    private final int borderDragClearance = 5;
     private final ResizableSide resizableSide;
 
     private ArrayList<ActionListener> resizeListeners = new ArrayList<>();
@@ -20,15 +21,16 @@ public class ResizableJPanel extends JPanel {
     public ResizableJPanel(ResizableSide resizableSide){
         super();
         this.resizableSide = resizableSide;
-        setBorder(BorderFactory.createMatteBorder(
-                (resizableSide==ResizableSide.TOP)?borderWidth:0,
-                (resizableSide==ResizableSide.LEFT)?borderWidth:0,
-                0,
-                0,
-                super.getBackground().brighter())
-        );
+        setBorder();
         drag(this);
     }
+
+    @Override
+    public void setBackground(Color bg) {
+        super.setBackground(bg);
+        setBorder();
+    }
+
     public ResizableJPanel(){
         this(ResizableSide.LEFT);
     }
@@ -37,9 +39,19 @@ public class ResizableJPanel extends JPanel {
         resizeListeners.add(a);
     }
 
-    private void notifyResizeListeners(){
+    private void setBorder(){
+        super.setBorder(BorderFactory.createMatteBorder(
+                (resizableSide==ResizableSide.TOP)?borderWidth:0,
+                (resizableSide==ResizableSide.LEFT)?borderWidth:0,
+                0,
+                0,
+                this.getBackground().darker())
+        );
+    }
+
+    private void notifyResizeListeners(int id){
         for(ActionListener a : resizeListeners)
-            a.actionPerformed(new ResizeJPanelEvent(this,0,null));
+            a.actionPerformed(new ResizeEvent(this,id,null));
     }
 
     private void drag(JPanel panel){
@@ -53,7 +65,7 @@ public class ResizableJPanel extends JPanel {
                         panel.setPreferredSize(new Dimension(panel.getWidth() - e.getX(), panel.getHeight()));
                     if(resizableSide==ResizableSide.TOP)
                         panel.setPreferredSize(new Dimension(panel.getWidth(), panel.getHeight() - e.getY()));
-                    notifyResizeListeners();
+                    notifyResizeListeners(0);
                     panel.repaint();
                     panel.revalidate();
                 }
@@ -61,10 +73,10 @@ public class ResizableJPanel extends JPanel {
 
             @Override
             public void mouseMoved(MouseEvent e) {
-                if(resizableSide==ResizableSide.LEFT && e.getX()>=0 && e.getX()<borderWidth){
+                if(resizableSide==ResizableSide.LEFT && e.getX()>=0-borderDragClearance && e.getX()<borderWidth+borderDragClearance){
                     panel.setCursor(new Cursor(Cursor.E_RESIZE_CURSOR));
                 }
-                else if(resizableSide==ResizableSide.TOP && e.getY()>=0 && e.getY()<borderWidth){
+                else if(resizableSide==ResizableSide.TOP && e.getY()>=0-borderDragClearance && e.getY()<borderWidth+borderDragClearance){
                     panel.setCursor(new Cursor(Cursor.N_RESIZE_CURSOR));
                 }
                 else{
@@ -81,9 +93,9 @@ public class ResizableJPanel extends JPanel {
 
             @Override
             public void mousePressed(MouseEvent e) {
-                if(resizableSide==ResizableSide.LEFT && e.getX()>=0 && e.getX()<borderWidth)
+                if(resizableSide==ResizableSide.LEFT && e.getX()>=0-borderDragClearance && e.getX()<borderWidth+borderDragClearance)
                     isPressed.set(true);
-                else if(resizableSide==ResizableSide.TOP && e.getY()>=0 && e.getY()<borderWidth)
+                else if(resizableSide==ResizableSide.TOP && e.getY()>=0-borderDragClearance && e.getY()<borderWidth+borderDragClearance)
                     isPressed.set(true);
             }
 
