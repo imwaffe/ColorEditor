@@ -32,3 +32,10 @@ selection.
 using the LEFT and RIGHT keys on the keyboard.
 - Allow the user to alter chroma in uniform color spaces
 (eg CIE L\*a\*b\*)
+  
+## Credits
+Proprietary modules of this software are CC-BY Luca Armellin<br><br>
+This software makes use of <a href="https://www.jfree.org/jfreechart/">JFreeChart</a>.<br>
+JFreeChart is open source or, more specifically, free software. It is distributed under the terms of the
+<a href="http://www.gnu.org/licenses/lgpl.html">GNU Lesser General Public Licence (LGPL)</a>,
+which permits use in proprietary applications.

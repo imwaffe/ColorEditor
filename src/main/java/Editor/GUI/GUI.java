@@ -1,26 +1,24 @@
 package Editor.GUI;
 
-import javax.imageio.ImageIO;
+import Editor.GUI.GUIComponents.ColorButton.ColorButton;
+import Editor.GUI.GUIComponents.ResizableJPanel.ResizableJPanel;
+
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
+import java.util.ArrayList;
 import java.util.function.Consumer;
 
 public class GUI extends JFrame{
-    private final JFrame frame = new JFrame();
     private final JPanel imgPanel = new JPanel();
-    private final JPanel selectionOverlayPanel = new JPanel();
-    private final JPanel histogramPanel = new JPanel();
-    private final JPanel overlayImgPanel = new JPanel();
-    private final JMenuBar bar = new JMenuBar();
+    private final JLabel imgLabel = new JLabel();
+    private final ResizableJPanel rightPanel = new ResizableJPanel();
+
+    private final Color selectionOverlayColor = new Color(255,255,255,60);
 
     private final ColorButton rBtn = new ColorButton("R",new Color(150,0,0));
     private final ColorButton gBtn = new ColorButton("G",new Color(0,150,0));
@@ -29,37 +27,26 @@ public class GUI extends JFrame{
     private final JMenuItem menuFileOpen = new JMenuItem("Open");
     private final JMenuItem menuFileSave = new JMenuItem("Save");
 
-    private final JMenuItem menuSettingsHistograms = new JMenuItem("Show histograms...");
+    //private final JMenuItem menuSettingsHistograms = new JMenuItem("Show histograms...");
 
-    private Consumer<Rectangle> selectedAction;
-    private Dimension imgAbsolutePosition = new Dimension(0,0);
+    private final ArrayList<Consumer<Rectangle>> selectedActions = new ArrayList<>();
 
     public enum Channel {RED, GREEN, BLUE}
 
-    public GUI(String title) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
-        frame.setLayout(new BorderLayout());
-        frame.setTitle(title);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        imgPanel.setBackground(new Color(0,0,0));
+    public GUI() throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
+        super.setLayout(new BorderLayout());
+        super.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        imgPanel.setBackground(new Color(68, 68, 68));
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         JPanel btnPanel = new JPanel();
-        btnPanel.setPreferredSize(new Dimension(screenSize.width,150));
-        btnPanel.setBackground(new Color(19, 19, 19));
+        btnPanel.setPreferredSize(new Dimension(screenSize.width,70));
+        btnPanel.setBackground(new Color(38, 38, 38));
 
-        //overlayPanel.setOpaque(false);
-        selectionOverlayPanel.setBackground(new Color(255,255,255,60));
-        selectionOverlayPanel.setSize(0,0);
-
-        histogramPanel.setBackground(new Color(102, 102, 102));
-        histogramPanel.setPreferredSize(new Dimension(300,frame.getHeight()));
-        //imgPanel.setSize(imgPanel.getWidth()-histogramPanel.getWidth(), imgPanel.getHeight());
-
-        //frame.add(new MyCanvas());
-        frame.add(histogramPanel, BorderLayout.EAST);
-        frame.add(selectionOverlayPanel, BorderLayout.NORTH);
-        frame.add(overlayImgPanel, BorderLayout.NORTH);
-        frame.add(imgPanel, BorderLayout.CENTER);
-        frame.add(btnPanel, BorderLayout.SOUTH);
+        JPanel overlayImgPanel = new JPanel();
+        super.add(imgPanel, BorderLayout.CENTER);
+        super.add(overlayImgPanel, BorderLayout.NORTH);
+        super.add(rightPanel, BorderLayout.EAST);
+        super.add(btnPanel, BorderLayout.SOUTH);
 
         btnPanel.add(rBtn);
         btnPanel.add(gBtn);
@@ -71,29 +58,33 @@ public class GUI extends JFrame{
         menuFile.add(menuFileOpen);
         menuFile.add(menuFileSave);
 
-        menuSettings.add(menuSettingsHistograms);
+        //menuSettings.add(menuSettingsHistograms);
 
+        JMenuBar bar = new JMenuBar();
         bar.add(menuFile);
         bar.add(menuSettings);
 
-        selectArea(imgPanel);
+        selectArea(imgLabel);
 
-        frame.getContentPane().add(BorderLayout.NORTH, bar);
+        super.getContentPane().add(BorderLayout.NORTH, bar);
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        frame.setSize(screenSize);
-        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-        frame.setResizable(false);
-        frame.setVisible(true);
+        super.setSize(screenSize);
+
+        rightPanel.setBackground(new Color(38, 38, 38));
+        rightPanel.setPreferredSize(new Dimension(300, (int) (super.getHeight()-btnPanel.getPreferredSize().getHeight())));
+
+        super.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        super.setResizable(false);
+        super.setVisible(true);
     }
 
     /** Display a new image in window */
     public void setImage(BufferedImage img){
-        JLabel imgLabel = new JLabel(new ImageIcon(img));
+        imgLabel.setIcon(new ImageIcon(img));
         imgPanel.removeAll();
         imgPanel.add(imgLabel);
-        frame.revalidate();
-        frame.repaint();
-        imgAbsolutePosition.setSize(imgLabel.getX(),imgLabel.getY());
+        super.revalidate();
+        super.repaint();
     }
 
     /** Get maximum size the image should have, based on screen size */
@@ -122,27 +113,20 @@ public class GUI extends JFrame{
     public void saveFileListener(ActionListener action){
         menuFileSave.addActionListener(action);
     }
-    public void setHistogram(JPanel hist) {
-        histogramPanel.add(hist);
+    public ResizableJPanel getRightPanel() {
+        return rightPanel;
     }
 
-    /** Shows a graphical file chooser and returns the selected File */
-    public File fileLoader(String title){
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle(title);
-        FileFilter filesFilter = new FileNameExtensionFilter("Image files", ImageIO.getReaderFileSuffixes());
-        fileChooser.setAcceptAllFileFilterUsed(false);
-        fileChooser.setFileFilter(filesFilter);
-        fileChooser.setMultiSelectionEnabled(false);
-        fileChooser.showOpenDialog(GUI.this);
-        return fileChooser.getSelectedFile();
+    public void addSelectionAction(Consumer<Rectangle> selectedAction) {
+        selectedActions.add(selectedAction);
     }
 
-    public void setSelectionAction(Consumer<Rectangle> selectedAction) {
-        this.selectedAction = selectedAction;
-    }
-    private void selectArea(JPanel parent){
+    private void selectArea(JLabel parent){
         Rectangle selection = new Rectangle();
+        JPanel selectionOverlayPanel = new JPanel();
+        selectionOverlayPanel.setBackground(selectionOverlayColor);
+        selectionOverlayPanel.setSize(0,0);
+        parent.add(selectionOverlayPanel);
 
         parent.addMouseMotionListener(new MouseMotionListener() {
             @Override
@@ -166,7 +150,6 @@ public class GUI extends JFrame{
                     y2 = (int)Math.abs(selection.getHeight());
                     y1 = e.getY();
                 }
-                y1+=bar.getHeight();
                 selectionOverlayPanel.setBounds(x1,y1,x2,y2);
             }
 
@@ -190,42 +173,26 @@ public class GUI extends JFrame{
             @Override
             public void mouseReleased(MouseEvent e) {
                 selection.setLocation(
-                        (int)(selectionOverlayPanel.getX()-imgAbsolutePosition.getWidth()),
-                        (int)(selectionOverlayPanel.getY()-imgAbsolutePosition.getHeight()-bar.getHeight())
+                        selectionOverlayPanel.getX(),
+                        selectionOverlayPanel.getY()
                 );
                 selection.setSize(selectionOverlayPanel.getWidth(), selectionOverlayPanel.getHeight());
+
                 selectionOverlayPanel.setSize(0,0);
-                selectedAction.accept(selection);
+
+                for(Consumer<Rectangle> selectedAction : selectedActions)
+                    selectedAction.accept(selection);
             }
 
             @Override
             public void mouseEntered(MouseEvent e) {
-
+                parent.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
-
+                parent.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
             }
         });
-    }
-    public void setOverlayImage(BufferedImage img, int x, int y){
-        ImageIcon imgIcn = new ImageIcon(img);
-        JLabel imgLabel = new JLabel(imgIcn);
-        overlayImgPanel.removeAll();
-        overlayImgPanel.setBorder(new EmptyBorder(-5,0,0,0));
-        overlayImgPanel.add(imgLabel);
-        overlayImgPanel.setBounds(
-                (int)imgAbsolutePosition.getWidth()+x,
-                (int)imgAbsolutePosition.getHeight()+y+bar.getHeight(),
-                img.getWidth(), img.getHeight());
-        overlayImgPanel.setVisible(true);
-        frame.revalidate();
-        frame.repaint();
-    }
-    public void resetOverlay(){
-        overlayImgPanel.setVisible(false);
-        frame.revalidate();
-        frame.repaint();
     }
 }

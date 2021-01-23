@@ -67,7 +67,6 @@ public class ImagesList implements ListIterator {
         files.remove();
     }
 
-
     @Override
     public void set(Object o) {
         files.set((File)o);
