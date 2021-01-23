@@ -1,28 +1,24 @@
 package Editor.GUI;
 
-import org.w3c.dom.css.Rect;
+import Editor.GUI.GUIComponents.ColorButton.ColorButton;
+import Editor.GUI.GUIComponents.ResizableJPanel.ResizableJPanel;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
 public class GUI extends JFrame{
     private final JPanel imgPanel = new JPanel();
-    private final JPanel selectionOverlayPanel = new JPanel();
-    private final JPanel histogramPanel = new JPanel();
-    private final JPanel overlayImgPanel = new JPanel();
-    private final JMenuBar bar = new JMenuBar();
+    private final JLabel imgLabel = new JLabel();
+    private final ResizableJPanel rightPanel = new ResizableJPanel();
+
+    private final Color selectionOverlayColor = new Color(255,255,255,60);
 
     private final ColorButton rBtn = new ColorButton("R",new Color(150,0,0));
     private final ColorButton gBtn = new ColorButton("G",new Color(0,150,0));
@@ -31,35 +27,25 @@ public class GUI extends JFrame{
     private final JMenuItem menuFileOpen = new JMenuItem("Open");
     private final JMenuItem menuFileSave = new JMenuItem("Save");
 
-    private final JMenuItem menuSettingsHistograms = new JMenuItem("Show histograms...");
+    //private final JMenuItem menuSettingsHistograms = new JMenuItem("Show histograms...");
 
-    private ArrayList<Consumer<Rectangle>> selectedActions = new ArrayList<>();
-    private Dimension imgAbsolutePosition = new Dimension(0,0);
+    private final ArrayList<Consumer<Rectangle>> selectedActions = new ArrayList<>();
 
     public enum Channel {RED, GREEN, BLUE}
 
     public GUI() throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
         super.setLayout(new BorderLayout());
         super.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        imgPanel.setBackground(new Color(0,0,0));
+        imgPanel.setBackground(new Color(68, 68, 68));
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         JPanel btnPanel = new JPanel();
-        btnPanel.setPreferredSize(new Dimension(screenSize.width,150));
-        btnPanel.setBackground(new Color(19, 19, 19));
+        btnPanel.setPreferredSize(new Dimension(screenSize.width,70));
+        btnPanel.setBackground(new Color(38, 38, 38));
 
-        //overlayPanel.setOpaque(false);
-        selectionOverlayPanel.setBackground(new Color(255,255,255,60));
-        selectionOverlayPanel.setSize(0,0);
-
-        histogramPanel.setBackground(new Color(102, 102, 102));
-        histogramPanel.setPreferredSize(new Dimension(300,super.getHeight()));
-        //imgPanel.setSize(imgPanel.getWidth()-histogramPanel.getWidth(), imgPanel.getHeight());
-
-        //frame.add(new MyCanvas());
-        super.add(histogramPanel, BorderLayout.EAST);
-        super.add(selectionOverlayPanel, BorderLayout.NORTH);
-        super.add(overlayImgPanel, BorderLayout.NORTH);
+        JPanel overlayImgPanel = new JPanel();
         super.add(imgPanel, BorderLayout.CENTER);
+        super.add(overlayImgPanel, BorderLayout.NORTH);
+        super.add(rightPanel, BorderLayout.EAST);
         super.add(btnPanel, BorderLayout.SOUTH);
 
         btnPanel.add(rBtn);
@@ -72,16 +58,21 @@ public class GUI extends JFrame{
         menuFile.add(menuFileOpen);
         menuFile.add(menuFileSave);
 
-        menuSettings.add(menuSettingsHistograms);
+        //menuSettings.add(menuSettingsHistograms);
 
+        JMenuBar bar = new JMenuBar();
         bar.add(menuFile);
         bar.add(menuSettings);
 
-        selectArea(imgPanel);
+        selectArea(imgLabel);
 
         super.getContentPane().add(BorderLayout.NORTH, bar);
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         super.setSize(screenSize);
+
+        rightPanel.setBackground(new Color(38, 38, 38));
+        rightPanel.setPreferredSize(new Dimension(300, (int) (super.getHeight()-btnPanel.getPreferredSize().getHeight())));
+
         super.setExtendedState(JFrame.MAXIMIZED_BOTH);
         super.setResizable(false);
         super.setVisible(true);
@@ -89,12 +80,11 @@ public class GUI extends JFrame{
 
     /** Display a new image in window */
     public void setImage(BufferedImage img){
-        JLabel imgLabel = new JLabel(new ImageIcon(img));
+        imgLabel.setIcon(new ImageIcon(img));
         imgPanel.removeAll();
         imgPanel.add(imgLabel);
         super.revalidate();
         super.repaint();
-        imgAbsolutePosition.setSize(imgLabel.getX(),imgLabel.getY());
     }
 
     /** Get maximum size the image should have, based on screen size */
@@ -123,16 +113,20 @@ public class GUI extends JFrame{
     public void saveFileListener(ActionListener action){
         menuFileSave.addActionListener(action);
     }
-    public JPanel getHistogramPanel() {
-        return histogramPanel;
+    public ResizableJPanel getRightPanel() {
+        return rightPanel;
     }
 
     public void addSelectionAction(Consumer<Rectangle> selectedAction) {
         selectedActions.add(selectedAction);
     }
 
-    private void selectArea(JPanel parent){
+    private void selectArea(JLabel parent){
         Rectangle selection = new Rectangle();
+        JPanel selectionOverlayPanel = new JPanel();
+        selectionOverlayPanel.setBackground(selectionOverlayColor);
+        selectionOverlayPanel.setSize(0,0);
+        parent.add(selectionOverlayPanel);
 
         parent.addMouseMotionListener(new MouseMotionListener() {
             @Override
@@ -156,7 +150,6 @@ public class GUI extends JFrame{
                     y2 = (int)Math.abs(selection.getHeight());
                     y1 = e.getY();
                 }
-                y1+=bar.getHeight();
                 selectionOverlayPanel.setBounds(x1,y1,x2,y2);
             }
 
@@ -180,23 +173,25 @@ public class GUI extends JFrame{
             @Override
             public void mouseReleased(MouseEvent e) {
                 selection.setLocation(
-                        (int)(selectionOverlayPanel.getX()-imgAbsolutePosition.getWidth()),
-                        (int)(selectionOverlayPanel.getY()-imgAbsolutePosition.getHeight()-bar.getHeight())
+                        selectionOverlayPanel.getX(),
+                        selectionOverlayPanel.getY()
                 );
                 selection.setSize(selectionOverlayPanel.getWidth(), selectionOverlayPanel.getHeight());
+
                 selectionOverlayPanel.setSize(0,0);
+
                 for(Consumer<Rectangle> selectedAction : selectedActions)
                     selectedAction.accept(selection);
             }
 
             @Override
             public void mouseEntered(MouseEvent e) {
-
+                parent.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
-
+                parent.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
             }
         });
     }

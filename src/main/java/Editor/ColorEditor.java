@@ -5,51 +5,54 @@ import Editor.GUI.Controllers.GUIObserver;
 import Editor.GUI.Controllers.KeyboardController;
 import Editor.GUI.GUI;
 import Editor.ImageControllers.ImageProxy;
-import Histograms.Hist;
+import Histograms.HistogramController;
 import ImageTools.AlterColor.AlterColor;
 import ImageTools.AlterColor.AlterRGB;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Observable;
 
 public class ColorEditor {
     public static void main(String[] args) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
         AlterColor alterColor = new AlterRGB();
         ImageProxy imageProxy = new ImageProxy(alterColor);
         GUIObserver gui = new GUIObserver(imageProxy);
-        FileController fileController = new MockFileController(gui, imageProxy);
-        KeyboardController controller = new KeyboardController(KeyboardFocusManager.getCurrentKeyboardFocusManager());
-        //Hist histogram = new Hist(gui.getHistogramPanel(),imageProxy);
+        FileController fileController = new FileChooserController(gui, imageProxy);
+        KeyboardController keyboardController = new KeyboardController(KeyboardFocusManager.getCurrentKeyboardFocusManager());
+        HistogramController histogram = new HistogramController(gui.getRightPanel(),imageProxy);
 
         fileController.addObserver(gui);
-        //fileController.addObserver(histogram);
+        fileController.addObserver(histogram);
         alterColor.addObserver(gui);
-        //alterColor.addObserver(histogram);
+        alterColor.addObserver(histogram);
 
         gui.setTitle("Color Editor");
 
         gui.addSelectionAction(selection -> {
             imageProxy.cropImage(selection);
             gui.setImage(imageProxy.getScaledOutputImage());
+            histogram.update(new Observable(),null);
         });
 
-        controller.decreaseAction(() -> {
+        keyboardController.decreaseAction(() ->
             alterColor.decreaseByOne(
                     gui.getSelectedChannel(GUI.Channel.RED),
                     gui.getSelectedChannel(GUI.Channel.GREEN),
-                    gui.getSelectedChannel(GUI.Channel.BLUE));
-        });
-        controller.increaseAction(() -> {
+                    gui.getSelectedChannel(GUI.Channel.BLUE)
+        ));
+        keyboardController.increaseAction(() ->
             alterColor.increaseByOne(
                     gui.getSelectedChannel(GUI.Channel.RED),
                     gui.getSelectedChannel(GUI.Channel.GREEN),
-                    gui.getSelectedChannel(GUI.Channel.BLUE));
-        });
-        controller.resetAction(() -> {
+                    gui.getSelectedChannel(GUI.Channel.BLUE)
+        ));
+        keyboardController.resetAction(() -> {
             imageProxy.reset();
             gui.setImage(imageProxy.getScaledOriginalImage());
+            histogram.update(new Observable(),null);
         });
-        controller.previewAction(
+        keyboardController.previewAction(
             // PRESSED preview key action
             () -> {
                 gui.setImage(imageProxy.getScaledOriginalImage());

@@ -1,7 +1,7 @@
 package Editor.GUI.Controllers.FileController;
 
 import Editor.GUI.GUI;
-import Editor.GUI.Modal;
+import Editor.GUI.GUIComponents.Modal.Modal;
 import Editor.ImageControllers.ImageController;
 import Editor.ImageControllers.ImageProxy;
 import ImageTools.AlterColor.AlterColor;
