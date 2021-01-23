@@ -11,6 +11,7 @@ import ImageTools.AlterColor.AlterRGB;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Observable;
 
 public class ColorEditor {
     public static void main(String[] args) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
@@ -31,23 +32,25 @@ public class ColorEditor {
         gui.addSelectionAction(selection -> {
             imageProxy.cropImage(selection);
             gui.setImage(imageProxy.getScaledOutputImage());
+            histogram.update(new Observable(),null);
         });
 
-        keyboardController.decreaseAction(() -> {
+        keyboardController.decreaseAction(() ->
             alterColor.decreaseByOne(
                     gui.getSelectedChannel(GUI.Channel.RED),
                     gui.getSelectedChannel(GUI.Channel.GREEN),
-                    gui.getSelectedChannel(GUI.Channel.BLUE));
-        });
-        keyboardController.increaseAction(() -> {
+                    gui.getSelectedChannel(GUI.Channel.BLUE)
+        ));
+        keyboardController.increaseAction(() ->
             alterColor.increaseByOne(
                     gui.getSelectedChannel(GUI.Channel.RED),
                     gui.getSelectedChannel(GUI.Channel.GREEN),
-                    gui.getSelectedChannel(GUI.Channel.BLUE));
-        });
+                    gui.getSelectedChannel(GUI.Channel.BLUE)
+        ));
         keyboardController.resetAction(() -> {
             imageProxy.reset();
             gui.setImage(imageProxy.getScaledOriginalImage());
+            histogram.update(new Observable(),null);
         });
         keyboardController.previewAction(
             // PRESSED preview key action

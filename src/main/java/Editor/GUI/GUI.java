@@ -27,7 +27,7 @@ public class GUI extends JFrame{
     private final JMenuItem menuFileOpen = new JMenuItem("Open");
     private final JMenuItem menuFileSave = new JMenuItem("Save");
 
-    private final JMenuItem menuSettingsHistograms = new JMenuItem("Show histograms...");
+    //private final JMenuItem menuSettingsHistograms = new JMenuItem("Show histograms...");
 
     private final ArrayList<Consumer<Rectangle>> selectedActions = new ArrayList<>();
 
@@ -39,17 +39,14 @@ public class GUI extends JFrame{
         imgPanel.setBackground(new Color(68, 68, 68));
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         JPanel btnPanel = new JPanel();
-        btnPanel.setPreferredSize(new Dimension(screenSize.width,80));
+        btnPanel.setPreferredSize(new Dimension(screenSize.width,70));
         btnPanel.setBackground(new Color(38, 38, 38));
 
-        rightPanel.setBackground(new Color(38, 38, 38));
-        rightPanel.setPreferredSize(new Dimension(300,super.getHeight()));
-
-        super.add(btnPanel, BorderLayout.SOUTH);
-        super.add(rightPanel, BorderLayout.EAST);
         JPanel overlayImgPanel = new JPanel();
-        super.add(overlayImgPanel, BorderLayout.NORTH);
         super.add(imgPanel, BorderLayout.CENTER);
+        super.add(overlayImgPanel, BorderLayout.NORTH);
+        super.add(rightPanel, BorderLayout.EAST);
+        super.add(btnPanel, BorderLayout.SOUTH);
 
         btnPanel.add(rBtn);
         btnPanel.add(gBtn);
@@ -61,7 +58,7 @@ public class GUI extends JFrame{
         menuFile.add(menuFileOpen);
         menuFile.add(menuFileSave);
 
-        menuSettings.add(menuSettingsHistograms);
+        //menuSettings.add(menuSettingsHistograms);
 
         JMenuBar bar = new JMenuBar();
         bar.add(menuFile);
@@ -72,6 +69,10 @@ public class GUI extends JFrame{
         super.getContentPane().add(BorderLayout.NORTH, bar);
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         super.setSize(screenSize);
+
+        rightPanel.setBackground(new Color(38, 38, 38));
+        rightPanel.setPreferredSize(new Dimension(300, (int) (super.getHeight()-btnPanel.getPreferredSize().getHeight())));
+
         super.setExtendedState(JFrame.MAXIMIZED_BOTH);
         super.setResizable(false);
         super.setVisible(true);
