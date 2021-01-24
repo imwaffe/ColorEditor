@@ -117,12 +117,7 @@ public class GUI extends JFrame{
 
     public void menuSettingsHistogramsListener(Consumer<Boolean> state) {
         menuSettingsHistograms.addActionListener(a -> {
-            Boolean tmpState = menuSettingsHistograms.getState();
-            if(tmpState)
-                rightPanel.setVisible(true);
-            else
-                rightPanel.setVisible(false);
-            state.accept(tmpState);
+            state.accept(menuSettingsHistograms.getState());
         });
     }
     public ResizableJPanel getRightPanel() {
