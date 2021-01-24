@@ -12,15 +12,16 @@ import ImageTools.AlterColor.AlterRGB;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Observable;
+import java.util.function.Consumer;
 
 public class ColorEditor {
     public static void main(String[] args) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
         AlterColor alterColor = new AlterRGB();
         ImageProxy imageProxy = new ImageProxy(alterColor);
         GUIObserver gui = new GUIObserver(imageProxy);
-        FileController fileController = new FileChooserController(gui, imageProxy);
+        FileController fileController = new MockFileController(gui, imageProxy);
         KeyboardController keyboardController = new KeyboardController(KeyboardFocusManager.getCurrentKeyboardFocusManager());
-        HistogramController histogram = new HistogramController(gui.getRightPanel(),imageProxy);
+        HistogramController histogram = new HistogramController(gui.getRightPanel(),imageProxy,true);
 
         fileController.addObserver(gui);
         fileController.addObserver(histogram);
@@ -33,6 +34,18 @@ public class ColorEditor {
             imageProxy.cropImage(selection);
             gui.setImage(imageProxy.getScaledOutputImage());
             histogram.update(new Observable(),null);
+        });
+
+        gui.menuSettingsHistogramsListener(state -> {
+            if(!state){
+                fileController.deleteObserver(histogram);
+                alterColor.deleteObserver(histogram);
+            }
+            else{
+                fileController.addObserver(histogram);
+                alterColor.addObserver(histogram);
+                histogram.update(new Observable(),null);
+            }
         });
 
         keyboardController.decreaseAction(() ->
