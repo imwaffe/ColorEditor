@@ -27,7 +27,7 @@ public class GUI extends JFrame{
     private final JMenuItem menuFileOpen = new JMenuItem("Open");
     private final JMenuItem menuFileSave = new JMenuItem("Save");
 
-    //private final JMenuItem menuSettingsHistograms = new JMenuItem("Show histograms...");
+    private final JCheckBoxMenuItem menuSettingsHistograms = new JCheckBoxMenuItem("Show histograms...");
 
     private final ArrayList<Consumer<Rectangle>> selectedActions = new ArrayList<>();
 
@@ -58,7 +58,7 @@ public class GUI extends JFrame{
         menuFile.add(menuFileOpen);
         menuFile.add(menuFileSave);
 
-        //menuSettings.add(menuSettingsHistograms);
+        menuSettings.add(menuSettingsHistograms);
 
         JMenuBar bar = new JMenuBar();
         bar.add(menuFile);
@@ -70,6 +70,7 @@ public class GUI extends JFrame{
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         super.setSize(screenSize);
 
+        rightPanel.setVisible(false);
         rightPanel.setBackground(new Color(38, 38, 38));
         rightPanel.setPreferredSize(new Dimension(300, (int) (super.getHeight()-btnPanel.getPreferredSize().getHeight())));
 
@@ -112,6 +113,17 @@ public class GUI extends JFrame{
     }
     public void saveFileListener(ActionListener action){
         menuFileSave.addActionListener(action);
+    }
+
+    public void menuSettingsHistogramsListener(Consumer<Boolean> state) {
+        menuSettingsHistograms.addActionListener(a -> {
+            Boolean tmpState = menuSettingsHistograms.getState();
+            if(tmpState)
+                rightPanel.setVisible(true);
+            else
+                rightPanel.setVisible(false);
+            state.accept(tmpState);
+        });
     }
     public ResizableJPanel getRightPanel() {
         return rightPanel;
