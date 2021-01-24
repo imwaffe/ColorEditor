@@ -1,6 +1,7 @@
 package Editor;
 
-import Editor.GUI.Controllers.FileController.*;
+import Editor.GUI.Controllers.FileController.FileChooserController;
+import Editor.GUI.Controllers.FileController.FileController;
 import Editor.GUI.Controllers.GUIObserver;
 import Editor.GUI.Controllers.KeyboardController;
 import Editor.GUI.GUI;
@@ -12,7 +13,6 @@ import ImageTools.AlterColor.AlterRGB;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Observable;
-import java.util.function.Consumer;
 
 public class ColorEditor {
     public static void main(String[] args) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
@@ -35,6 +35,7 @@ public class ColorEditor {
         });
 
         gui.menuSettingsHistogramsListener(state -> {
+            gui.getRightPanel().setVisible(state);
             if(!state){
                 fileController.deleteObserver(histogram);
                 alterColor.deleteObserver(histogram);
