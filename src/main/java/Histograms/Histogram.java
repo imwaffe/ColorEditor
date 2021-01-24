@@ -78,7 +78,7 @@ public class Histogram implements Runnable {
     }
 
     private void refreshImage() {
-        BufferedImage resizedImage = ImageScaler.resizeImage(imageProxy.getScaledOutputImage(),new Dimension(200,200));
+        BufferedImage resizedImage = ImageScaler.resizeImage(imageProxy.getScaledOutputImage(),new Dimension(100,100));
         int w = resizedImage.getWidth();
         int h = resizedImage.getHeight();
         int size = w*h;
