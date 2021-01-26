@@ -8,7 +8,9 @@ package Editor.GUI.Controllers;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.util.HashMap;
 import java.util.Observable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class KeyboardController extends Observable {
@@ -52,19 +54,18 @@ public class KeyboardController extends Observable {
 
     /** Allows the definition of actions that must be executed only once even if the key is held down.
      * isHeldDown flag keeps track of whether the action should be executed or not */
-    private final AtomicBoolean isHeldDown = new AtomicBoolean(true);
+    private final HashMap<Integer, AtomicBoolean> activeKeys = new HashMap<>();
     private void addHeldDownAction(int key, Runnable action){
+        activeKeys.putIfAbsent(key,new AtomicBoolean(false));
         kbManager.addKeyEventDispatcher(e -> {
-            if(e.getID() == KeyEvent.KEY_PRESSED) {
-                if(e.getKeyCode() == key) {
-                    if(isHeldDown.compareAndSet(true, false))
+            if(e.getID() == KeyEvent.KEY_PRESSED)
+                if(e.getKeyCode() == key)
+                    if(activeKeys.get(key).compareAndSet(true,false))
                         action.run();
-                }
-            }
             return false;
         });
         addReleasedAction(key, () -> {
-            isHeldDown.set(true);
+            activeKeys.get(key).set(true);
         });
     }
     private void addHeldDownAction(char key, Runnable action){

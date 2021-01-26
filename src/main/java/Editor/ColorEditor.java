@@ -2,6 +2,7 @@ package Editor;
 
 import Editor.GUI.Controllers.FileController.FileChooserController;
 import Editor.GUI.Controllers.FileController.FileController;
+import Editor.GUI.Controllers.FileController.MockFileController;
 import Editor.GUI.Controllers.GUIObserver;
 import Editor.GUI.Controllers.KeyboardController;
 import Editor.GUI.GUI;
@@ -19,7 +20,7 @@ public class ColorEditor {
         AlterColor alterColor = new AlterRGB();
         ImageProxy imageProxy = new ImageProxy(alterColor);
         GUIObserver gui = new GUIObserver(imageProxy);
-        FileController fileController = new FileChooserController(gui, imageProxy);
+        FileController fileController = new MockFileController(gui, imageProxy);
         KeyboardController keyboardController = new KeyboardController(KeyboardFocusManager.getCurrentKeyboardFocusManager());
         HistogramController histogram = new HistogramController(gui.getRightPanel(),imageProxy,true);
 
