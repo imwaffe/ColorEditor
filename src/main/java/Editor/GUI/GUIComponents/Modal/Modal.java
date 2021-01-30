@@ -19,7 +19,7 @@ public class Modal extends JDialog {
         cp.add(message);
     }
 
-    public void setMessage(String text){
+    public synchronized void setMessage(String text){
         message.setText(text);
         validate();
         repaint();

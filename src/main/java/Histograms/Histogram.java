@@ -77,12 +77,11 @@ public class Histogram implements Runnable {
         resizeHistograms(parentPanel.getPreferredSize());
     }
 
-    private void refreshImage() {
-        BufferedImage resizedImage = ImageScaler.resizeImage(imageProxy.getScaledOutputImage(),new Dimension(100,100));
-        int w = resizedImage.getWidth();
-        int h = resizedImage.getHeight();
+    private void refreshImage(BufferedImage loadedImage) {
+        int w = loadedImage.getWidth();
+        int h = loadedImage.getHeight();
         int size = w*h;
-        Raster raster = resizedImage.getRaster();
+        Raster raster = loadedImage.getRaster();
         double values[] = new double[size];
         reds.setNormalizationFactor(size/100);
         greens.setNormalizationFactor(size/100);
@@ -122,8 +121,12 @@ public class Histogram implements Runnable {
         return cp;
     }
 
+    public void calculateHighResolutionHistogram(){
+        refreshImage(imageProxy.getFullscaleOutputImage());
+    }
+
     @Override
     public void run() {
-        refreshImage();
+        refreshImage(ImageScaler.resizeImage(imageProxy.getScaledOutputImage(),new Dimension(100,100)));
     }
 }
