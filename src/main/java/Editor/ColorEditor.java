@@ -6,6 +6,7 @@ import Editor.GUI.Controllers.FileController.MockFileController;
 import Editor.GUI.Controllers.GUIObserver;
 import Editor.GUI.Controllers.KeyboardController;
 import Editor.GUI.GUI;
+import Editor.GUI.GUIComponents.Modal.Modal;
 import Editor.ImageControllers.ImageProxy;
 import Histograms.HistogramController;
 import ImageTools.AlterColor.AlterColor;
@@ -20,7 +21,7 @@ public class ColorEditor {
         AlterColor alterColor = new AlterRGB();
         ImageProxy imageProxy = new ImageProxy(alterColor);
         GUIObserver gui = new GUIObserver(imageProxy);
-        FileController fileController = new MockFileController(gui, imageProxy);
+        FileController fileController = new FileChooserController(gui, imageProxy);
         KeyboardController keyboardController = new KeyboardController(KeyboardFocusManager.getCurrentKeyboardFocusManager());
         HistogramController histogram = new HistogramController(gui.getRightPanel(),imageProxy,true);
 
@@ -46,6 +47,16 @@ public class ColorEditor {
                 alterColor.addObserver(histogram);
                 histogram.update(new Observable(),null);
             }
+        });
+        gui.menuSettingsHistogramsHiResListener(a -> {
+            Modal calculating = new Modal(gui);
+            calculating.disableClose();
+            calculating.setSize(new Dimension(500,100));
+            calculating.setTitle("Calculating high resolution histogram...");
+            calculating.setMessage("Please wait...\nThis may take several seconds");
+            histogram.calculateHighResolutionHistogram();
+            calculating.setMessage("Completed!");
+            calculating.enableClose();
         });
 
         keyboardController.decreaseAction(() ->

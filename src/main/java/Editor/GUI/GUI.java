@@ -28,6 +28,7 @@ public class GUI extends JFrame{
     private final JMenuItem menuFileSave = new JMenuItem("Save");
 
     private final JCheckBoxMenuItem menuSettingsHistograms = new JCheckBoxMenuItem("Show histograms...");
+    private final JMenuItem menuSettingsHistogramsHiRes = new JMenuItem("High resolution histogram (one time)");
 
     private final ArrayList<Consumer<Rectangle>> selectedActions = new ArrayList<>();
 
@@ -59,6 +60,7 @@ public class GUI extends JFrame{
         menuFile.add(menuFileSave);
 
         menuSettings.add(menuSettingsHistograms);
+        menuSettings.add(menuSettingsHistogramsHiRes);
 
         JMenuBar bar = new JMenuBar();
         bar.add(menuFile);
@@ -120,6 +122,10 @@ public class GUI extends JFrame{
             state.accept(menuSettingsHistograms.getState());
         });
     }
+    public void menuSettingsHistogramsHiResListener(ActionListener action){
+        menuSettingsHistogramsHiRes.addActionListener(action);
+    }
+
     public ResizableJPanel getRightPanel() {
         return rightPanel;
     }
