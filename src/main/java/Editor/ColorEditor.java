@@ -10,6 +10,7 @@ import Editor.GUI.GUIComponents.Modal.Modal;
 import Editor.ImageControllers.ImageProxy;
 import Histograms.HistogramController;
 import ImageTools.AlterColor.AlterColor;
+import ImageTools.AlterColor.AlterLMS;
 import ImageTools.AlterColor.AlterRGB;
 
 import javax.swing.*;
@@ -18,7 +19,7 @@ import java.util.Observable;
 
 public class ColorEditor {
     public static void main(String[] args) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
-        AlterColor alterColor = new AlterRGB();
+        AlterColor alterColor = new AlterLMS();
         ImageProxy imageProxy = new ImageProxy(alterColor);
         GUIObserver gui = new GUIObserver(imageProxy);
         FileController fileController = new FileChooserController(gui, imageProxy);

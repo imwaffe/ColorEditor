@@ -42,7 +42,7 @@ public class RGB2LAB {
     public enum ColorSpace {sRGB, AdobeRGB}
     public enum White {D65, D50}
 
-    private static double[][] XYZMatrix(ColorSpace m){
+    protected static double[][] XYZMatrix(ColorSpace m){
         double[][] srgb2xyz_d65 ={
                 {   0.4124564,  0.3575761,  0.1804375   },
                 {   0.2126729,  0.7151522,  0.0721750   },
@@ -63,7 +63,7 @@ public class RGB2LAB {
                 throw new IllegalArgumentException("Not a valid matrix");
         }
     }
-    private static double[][] XYZMatrixInverse(ColorSpace m)  {
+    protected static double[][] XYZMatrixInverse(ColorSpace m)  {
         double[][] srgb2xyz_d65_inv ={
                 {   3.2404542, -1.5371385, -0.4985314  },
                 {  -0.9692660,  1.8760108,  0.0415560  },
