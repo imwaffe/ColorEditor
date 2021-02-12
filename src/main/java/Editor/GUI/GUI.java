@@ -1,6 +1,9 @@
 package Editor.GUI;
 
-import Editor.GUI.GUIComponents.ColorButton.ColorButton;
+import Editor.GUI.GUIComponents.ColorButton.ButtonsPanel;
+import Editor.GUI.GUIComponents.ColorButton.ButtonsPanelLMS;
+import Editor.GUI.GUIComponents.ColorButton.ButtonsPanelRGB;
+import Editor.GUI.GUIComponents.Menu.ModeMenu;
 import Editor.GUI.GUIComponents.ResizableJPanel.ResizableJPanel;
 
 import javax.swing.*;
@@ -20,9 +23,7 @@ public class GUI extends JFrame{
 
     private final Color selectionOverlayColor = new Color(255,255,255,60);
 
-    private final ColorButton rBtn = new ColorButton("R",new Color(150,0,0));
-    private final ColorButton gBtn = new ColorButton("G",new Color(0,150,0));
-    private final ColorButton bBtn = new ColorButton("B",new Color(0,0,150));
+    private final JMenuBar bar = new JMenuBar();
 
     private final JMenuItem menuFileOpen = new JMenuItem("Open");
     private final JMenuItem menuFileSave = new JMenuItem("Save");
@@ -30,28 +31,24 @@ public class GUI extends JFrame{
     private final JCheckBoxMenuItem menuSettingsHistograms = new JCheckBoxMenuItem("Show histograms...");
     private final JMenuItem menuSettingsHistogramsHiRes = new JMenuItem("High resolution histogram (one time)");
 
-    private final ArrayList<Consumer<Rectangle>> selectedActions = new ArrayList<>();
+    JPanel buttonsPanelContainer = new JPanel();
+    private ButtonsPanel btnPanel = null;
 
-    public enum Channel {RED, GREEN, BLUE}
+    private final ArrayList<Consumer<Rectangle>> selectedActions = new ArrayList<>();
 
     public GUI() throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
         super.setLayout(new BorderLayout());
         super.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         imgPanel.setBackground(new Color(68, 68, 68));
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        JPanel btnPanel = new JPanel();
-        btnPanel.setPreferredSize(new Dimension(screenSize.width,70));
-        btnPanel.setBackground(new Color(38, 38, 38));
+        buttonsPanelContainer.setPreferredSize(new Dimension(screenSize.width,70));
+        buttonsPanelContainer.setBackground(new Color(38, 38, 38));
 
         JPanel overlayImgPanel = new JPanel();
         super.add(imgPanel, BorderLayout.CENTER);
         super.add(overlayImgPanel, BorderLayout.NORTH);
         super.add(rightPanel, BorderLayout.EAST);
-        super.add(btnPanel, BorderLayout.SOUTH);
-
-        btnPanel.add(rBtn);
-        btnPanel.add(gBtn);
-        btnPanel.add(bBtn);
+        super.add(buttonsPanelContainer, BorderLayout.SOUTH);
 
         JMenu menuFile = new JMenu("File");
         JMenu menuSettings = new JMenu("Settings");
@@ -62,7 +59,6 @@ public class GUI extends JFrame{
         menuSettings.add(menuSettingsHistograms);
         menuSettings.add(menuSettingsHistogramsHiRes);
 
-        JMenuBar bar = new JMenuBar();
         bar.add(menuFile);
         bar.add(menuSettings);
 
@@ -74,11 +70,21 @@ public class GUI extends JFrame{
 
         rightPanel.setVisible(false);
         rightPanel.setBackground(new Color(38, 38, 38));
-        rightPanel.setPreferredSize(new Dimension(300, (int) (super.getHeight()-btnPanel.getPreferredSize().getHeight())));
+        rightPanel.setPreferredSize(new Dimension(300, (int) (super.getHeight()-buttonsPanelContainer.getPreferredSize().getHeight())));
 
         super.setExtendedState(JFrame.MAXIMIZED_BOTH);
         super.setResizable(false);
         super.setVisible(true);
+    }
+
+    public void setButtonsPanel(ButtonsPanel btnPanel){
+        this.btnPanel = btnPanel;
+        buttonsPanelContainer.removeAll();
+        buttonsPanelContainer.add(this.btnPanel);
+    }
+
+    public ButtonsPanel getButtonsPanel(){
+        return btnPanel;
     }
 
     /** Display a new image in window */
@@ -93,20 +99,6 @@ public class GUI extends JFrame{
     /** Get maximum size the image should have, based on screen size */
     public Dimension getImagePanelSize(){
         return new Dimension(imgPanel.getWidth()-100, imgPanel.getHeight()-100);
-    }
-
-    /** Return true if the button corresponding to a specific channel is pressed */
-    public boolean getSelectedChannel(Channel ch){
-        switch(ch){
-            case RED:
-                return rBtn.isSelected();
-            case GREEN:
-                return gBtn.isSelected();
-            case BLUE:
-                return bBtn.isSelected();
-            default:
-                return false;
-        }
     }
 
     /** Listeners for "Open" and "Save" actions in "File" menu */
@@ -207,5 +199,9 @@ public class GUI extends JFrame{
                 parent.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
             }
         });
+    }
+
+    public JMenuBar getMenus(){
+        return this.bar;
     }
 }

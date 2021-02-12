@@ -11,6 +11,7 @@ public class ColorButton extends JButton {
     private Color selectedBgColor = mainBgColor.brighter();
     private final Color mainFgColor = new Color(0,0,0);
     private final Color selectedFgColor = new Color(255,255,255);
+    private ButtonsPanel containerPanel = null;
     private boolean isSelected = false;
 
     public ColorButton(String title){
@@ -24,6 +25,9 @@ public class ColorButton extends JButton {
                     ColorButton.super.setForeground(mainFgColor);
                 }
                 else {
+                    if(containerPanel != null){
+                        containerPanel.reset();
+                    }
                     ColorButton.super.setBackground(selectedBgColor);
                     ColorButton.super.setForeground(selectedFgColor);
                 }
@@ -53,6 +57,18 @@ public class ColorButton extends JButton {
     public ColorButton(String title, Color mainBgColor){
         this(title);
         this.setBackground(mainBgColor);
+    }
+
+    public void reset(){
+        if(isSelected){
+            super.setBackground(mainBgColor);
+            super.setForeground(mainFgColor);
+            isSelected = false;
+        }
+    }
+
+    public void resetContainer(ButtonsPanel containerPanel){
+        this.containerPanel = containerPanel;
     }
 
     @Override
