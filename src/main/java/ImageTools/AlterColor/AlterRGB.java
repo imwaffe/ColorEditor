@@ -25,10 +25,6 @@ public class AlterRGB extends AlterColor{
     private final static int MIN_VAL = 0;   //min value of each color channel
     private final static int MAX_VAL = 255; //max value of each color channel
 
-    private ArrayList<Observer> observers = new ArrayList<>();
-
-    private Runnable onChangeFunction = null;
-
     /**
      * originalRgbRaster is the RGB raster of the original image, this will be used to write the altered image.
      * alteredRgbRaster is the RGB raster containing the color-altered version of the original image
@@ -40,13 +36,6 @@ public class AlterRGB extends AlterColor{
      * by its relative coefficient in order to alter colors (eg: rCoeff=0.5 will cause the RED channel value
      * of each pixel to be halved) */
     private float rCoeff=1, gCoeff=1, bCoeff=1;
-
-    /** Returns a BufferedImage given an int[] RGB raster. If no size is given, the size of displayed image is used. */
-    public static BufferedImage getBufferedImage(int[] rgbRaster, int width, int height){
-        BufferedImage buffImg = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        buffImg.setRGB(0,0, width, height,rgbRaster,0, width);
-        return buffImg;
-    }
 
     /** This function accept values between -255 and +255 for each channel and calculates coefficients.
      * eg: changeColors(255,0,0) will leave only the RED channel, while changeColors(-255,0,0) will

@@ -5,11 +5,14 @@ import Editor.GUI.Controllers.FileController.FileController;
 import Editor.GUI.Controllers.FileController.MockFileController;
 import Editor.GUI.Controllers.GUIObserver;
 import Editor.GUI.Controllers.KeyboardController;
-import Editor.GUI.GUI;
+import Editor.GUI.GUIComponents.ColorButton.ButtonsPanelLMS;
+import Editor.GUI.GUIComponents.ColorButton.ButtonsPanelRGB;
+import Editor.GUI.GUIComponents.Menu.ModeMenu;
 import Editor.GUI.GUIComponents.Modal.Modal;
 import Editor.ImageControllers.ImageProxy;
 import Histograms.HistogramController;
-import ImageTools.AlterColor.AlterColor;
+import ImageTools.AlterColor.AlterColorStrategy;
+import ImageTools.AlterColor.AlterLMS;
 import ImageTools.AlterColor.AlterRGB;
 
 import javax.swing.*;
@@ -18,9 +21,13 @@ import java.util.Observable;
 
 public class ColorEditor {
     public static void main(String[] args) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
-        AlterColor alterColor = new AlterRGB();
+        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        AlterColorStrategy alterColor = new AlterColorStrategy(new AlterLMS());
         ImageProxy imageProxy = new ImageProxy(alterColor);
+        ModeMenu modeMenu = new ModeMenu();
         GUIObserver gui = new GUIObserver(imageProxy);
+        gui.getMenus().add(modeMenu);
+        gui.setButtonsPanel(new ButtonsPanelLMS());
         FileController fileController = new FileChooserController(gui, imageProxy);
         KeyboardController keyboardController = new KeyboardController(KeyboardFocusManager.getCurrentKeyboardFocusManager());
         HistogramController histogram = new HistogramController(gui.getRightPanel(),imageProxy,true);
@@ -61,15 +68,15 @@ public class ColorEditor {
 
         keyboardController.decreaseAction(() ->
             alterColor.decreaseByOne(
-                    gui.getSelectedChannel(GUI.Channel.RED),
-                    gui.getSelectedChannel(GUI.Channel.GREEN),
-                    gui.getSelectedChannel(GUI.Channel.BLUE)
+                    gui.getButtonsPanel().getSelectedChannel(0),
+                    gui.getButtonsPanel().getSelectedChannel(1),
+                    gui.getButtonsPanel().getSelectedChannel(2)
         ));
         keyboardController.increaseAction(() ->
             alterColor.increaseByOne(
-                    gui.getSelectedChannel(GUI.Channel.RED),
-                    gui.getSelectedChannel(GUI.Channel.GREEN),
-                    gui.getSelectedChannel(GUI.Channel.BLUE)
+                    gui.getButtonsPanel().getSelectedChannel(0),
+                    gui.getButtonsPanel().getSelectedChannel(1),
+                    gui.getButtonsPanel().getSelectedChannel(2)
         ));
         keyboardController.resetAction(() -> {
             imageProxy.reset();
@@ -84,6 +91,23 @@ public class ColorEditor {
             // RELEASED preview key action
             () -> {
                 gui.setImage(imageProxy.getScaledOutputImage());
+        });
+
+        modeMenu.setRGBaction(() -> {
+            alterColor.setStrategy(new AlterRGB());
+            gui.setButtonsPanel(new ButtonsPanelRGB());
+            gui.revalidate();
+            gui.repaint();
+            imageProxy.reset();
+            histogram.update(new Observable(),null);
+        });
+        modeMenu.setLMSaction(() -> {
+            alterColor.setStrategy(new AlterLMS());
+            gui.setButtonsPanel(new ButtonsPanelLMS());
+            gui.revalidate();
+            gui.repaint();
+            imageProxy.reset();
+            histogram.update(new Observable(),null);
         });
     }
 }
