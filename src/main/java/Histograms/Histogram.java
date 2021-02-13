@@ -83,9 +83,9 @@ public class Histogram implements Runnable {
         int size = w*h;
         Raster raster = loadedImage.getRaster();
         double values[] = new double[size];
-        reds.setNormalizationFactor(size/100);
-        greens.setNormalizationFactor(size/100);
-        blues.setNormalizationFactor(size/100);
+        reds.setNormalizationFactor((float)size/100);
+        greens.setNormalizationFactor((float)size/100);
+        blues.setNormalizationFactor((float)size/100);
         reds.setValues(raster.getSamples(0,0,w,h,0,values));
         greens.setValues(raster.getSamples(0,0,w,h,1,values));
         blues.setValues(raster.getSamples(0,0,w,h,2,values));

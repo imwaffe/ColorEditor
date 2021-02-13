@@ -1,6 +1,7 @@
 package Editor.ImageControllers;
 
 import ImageTools.AlterColor.AlterColor;
+import ImageTools.AlterColor.AlterLMS;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -12,6 +13,15 @@ public class ImageProxy {
 
     public ImageProxy(AlterColor alterColor){
         this.alterColor = alterColor;
+    }
+
+    public boolean setAlterColor(AlterColor alterColor){
+        if(this.alterColor != alterColor) {
+            this.alterColor = alterColor;
+            reset();
+            return true;
+        }
+        return false;
     }
 
     public void setInputImage(ImageController inputImage){
