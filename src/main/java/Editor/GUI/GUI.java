@@ -1,9 +1,6 @@
 package Editor.GUI;
 
 import Editor.GUI.GUIComponents.ColorButton.ButtonsPanel;
-import Editor.GUI.GUIComponents.ColorButton.ButtonsPanelLMS;
-import Editor.GUI.GUIComponents.ColorButton.ButtonsPanelRGB;
-import Editor.GUI.GUIComponents.Menu.ModeMenu;
 import Editor.GUI.GUIComponents.ResizableJPanel.ResizableJPanel;
 
 import javax.swing.*;

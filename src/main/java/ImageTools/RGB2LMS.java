@@ -12,8 +12,10 @@ public class RGB2LMS {
     private final static int MAX_VAL = 255; //max value of each color channel
 
     private final static double GAMMA = 2.4;
+    private final static double UNLINEAR_RGB_THRS = 0.0031308;
 
-    private final static HashMap<Integer, Double> linearizeRgbMap = new HashMap<>(256,1);
+    private final static HashMap<Integer, double[]> rgb2lmsLut = new HashMap<>(10000);
+    private final static HashMap<String, Integer> unlinearizeRgbLut = new HashMap<>(1000);
 
     /** Hunt-Pointer-Estevez transformation matrix from XYZ to LMS normalized to D65 */
     private final static double[][] hpe ={
@@ -29,19 +31,12 @@ public class RGB2LMS {
             {   0,          0,          1.089090}
     };
 
-    //private final double[][][][] rgb2lms_lut = new double[MAX_VAL+1][MAX_VAL+1][MAX_VAL+1][3];
-
     private final double[][] xyz_hpe;
     private final double[][] xyz_hpe_inv;
 
     public RGB2LMS(){
         xyz_hpe = multiply3by3matrices(hpe,RGB2LAB.XYZMatrix(RGB2LAB.ColorSpace.sRGB));
         xyz_hpe_inv = multiply3by3matrices(RGB2LAB.XYZMatrixInverse(RGB2LAB.ColorSpace.sRGB), hpe_inv);
-
-        /*for(int r=0; r<MAX_VAL; r++)
-            for(int g=0; g<MAX_VAL; g++)
-                for(int b=0; b<MAX_VAL; b++)
-                    rgb2lms_lut[r][g][b] = rgbValToLMS((r<<RED + g<<GREEN + b<<BLUE), hpe);*/
     }
 
     public double[] xyz2lms(double[] xyzRaster){
@@ -75,32 +70,22 @@ public class RGB2LMS {
         double[] outputRaster = new double[(inputRaster.length*3)];
 
         for(int i=0;i<inputRaster.length;i++){
-            double rComp = linearizeRGB(((inputRaster[i]>>RED) & 0xFF), GAMMA);
-            double gComp = linearizeRGB(((inputRaster[i]>>GREEN) & 0xFF), GAMMA);
-            double bComp = linearizeRGB(((inputRaster[i]>>BLUE) & 0xFF), GAMMA);
-            outputRaster[(i*3)]    =   conversionMatrix[0][0]*rComp + conversionMatrix[0][1]*gComp + conversionMatrix[0][2]*bComp; //X value
-            outputRaster[(i*3)+1]  =   conversionMatrix[1][0]*rComp + conversionMatrix[1][1]*gComp + conversionMatrix[1][2]*bComp; //Y value
-            outputRaster[(i*3)+2]  =   conversionMatrix[2][0]*rComp + conversionMatrix[2][1]*gComp + conversionMatrix[2][2]*bComp; //Z value
-            /*
-            double[] converted = rgb2lms_lut[(inputRaster[i]>>RED) & 0xFF][(inputRaster[i]>>GREEN) & 0xFF][(inputRaster[i]>>BLUE) & 0xFF];
-            for(int j=0; j<3; j++)
-                outputRaster[i+j] = converted[j];
-             */
+            double[] lmsVals = new double[3];
+            if(!rgb2lmsLut.containsKey(inputRaster[i])) {
+                double rComp = linearizeRGB(((inputRaster[i] >> RED) & 0xFF), GAMMA);
+                double gComp = linearizeRGB(((inputRaster[i] >> GREEN) & 0xFF), GAMMA);
+                double bComp = linearizeRGB(((inputRaster[i] >> BLUE) & 0xFF), GAMMA);
+                lmsVals[0] = conversionMatrix[0][0] * rComp + conversionMatrix[0][1] * gComp + conversionMatrix[0][2] * bComp; //X value
+                lmsVals[1] = conversionMatrix[1][0] * rComp + conversionMatrix[1][1] * gComp + conversionMatrix[1][2] * bComp; //Y value
+                lmsVals[2] = conversionMatrix[2][0] * rComp + conversionMatrix[2][1] * gComp + conversionMatrix[2][2] * bComp; //Z value
+                rgb2lmsLut.put(inputRaster[i], lmsVals);
+            }
+            lmsVals = rgb2lmsLut.get(inputRaster[i]);
+            outputRaster[(i * 3)] = lmsVals[0];
+            outputRaster[(i * 3) + 1] = lmsVals[1];
+            outputRaster[(i * 3) + 2] = lmsVals[2];
         }
         return outputRaster;
-    }
-
-    private static double[] rgbValToLMS(int inputRGB, double [][] conversionMatrix){
-        double[] output = new double[3];
-        double rComp = linearizeRGB(((inputRGB>>RED) & 0xFF), GAMMA);
-        double gComp = linearizeRGB(((inputRGB>>GREEN) & 0xFF), GAMMA);
-        double bComp = linearizeRGB(((inputRGB>>BLUE) & 0xFF), GAMMA);
-
-        output[0]    =   conversionMatrix[0][0]*rComp + conversionMatrix[0][1]*gComp + conversionMatrix[0][2]*bComp; //X value
-        output[1]  =   conversionMatrix[1][0]*rComp + conversionMatrix[1][1]*gComp + conversionMatrix[1][2]*bComp; //Y value
-        output[2]  =   conversionMatrix[2][0]*rComp + conversionMatrix[2][1]*gComp + conversionMatrix[2][2]*bComp; //Z value
-
-        return output;
     }
 
     public static int[] applyMatrixRGB(double[] inputRaster, double[][] conversionMatrix){
@@ -120,28 +105,24 @@ public class RGB2LMS {
     }
 
     private static double linearizeRGB (int rgb, double gamma){
-        if(linearizeRgbMap.containsKey(rgb))
-            return linearizeRgbMap.get(rgb);
         double v = 10.31475;
         double linearRGB;
         if(rgb <= v)
             linearRGB = rgb/(MAX_VAL*12.92);
         else
             linearRGB = Math.pow((((double)rgb/MAX_VAL + 0.055)/1.055),gamma);
-        linearizeRgbMap.put(rgb, linearRGB);
         return linearRGB;
     }
 
     private static int unlinearizeRGB (double linearRGB, double gamma){
-        double v = 0.0031308;
         int rgb;
-        if(linearRGB <= v)
-            rgb = (int)Math.round(MAX_VAL*12.92*linearRGB);
+        if (linearRGB <= UNLINEAR_RGB_THRS)
+            rgb = (int) Math.round(MAX_VAL * 12.92 * linearRGB);
         else
-            rgb = (int)Math.round(MAX_VAL*(1.055*Math.pow(linearRGB,(1/gamma))-0.055));
-        if(rgb<MIN_VAL)
+            rgb = (int) Math.round(MAX_VAL * (1.055 * Math.pow(linearRGB, (1 / gamma)) - 0.055));
+        if (rgb < MIN_VAL)
             rgb = 0;
-        else if(rgb>MAX_VAL)
+        else if (rgb > MAX_VAL)
             rgb = 255;
         return rgb;
     }

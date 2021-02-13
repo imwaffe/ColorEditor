@@ -22,12 +22,12 @@ import java.util.Observable;
 public class ColorEditor {
     public static void main(String[] args) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        AlterColorStrategy alterColor = new AlterColorStrategy(new AlterRGB());
+        AlterColorStrategy alterColor = new AlterColorStrategy(new AlterLMS());
         ImageProxy imageProxy = new ImageProxy(alterColor);
         ModeMenu modeMenu = new ModeMenu();
         GUIObserver gui = new GUIObserver(imageProxy);
         gui.getMenus().add(modeMenu);
-        gui.setButtonsPanel(new ButtonsPanelRGB());
+        gui.setButtonsPanel(new ButtonsPanelLMS());
         FileController fileController = new FileChooserController(gui, imageProxy);
         KeyboardController keyboardController = new KeyboardController(KeyboardFocusManager.getCurrentKeyboardFocusManager());
         HistogramController histogram = new HistogramController(gui.getRightPanel(),imageProxy,true);
