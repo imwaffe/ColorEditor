@@ -8,10 +8,7 @@ import Editor.GUI.GUIComponents.ResizableJPanel.ResizableJPanel;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.function.Consumer;
@@ -53,10 +50,15 @@ public class GUI extends JFrame{
         JMenu menuFile = new JMenu("File");
         JMenu menuSettings = new JMenu("Settings");
 
+        menuFileOpen.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_MASK));
         menuFile.add(menuFileOpen);
+
+        menuFileSave.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_MASK));
         menuFile.add(menuFileSave);
 
+        menuSettingsHistograms.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, KeyEvent.CTRL_MASK));
         menuSettings.add(menuSettingsHistograms);
+        menuSettingsHistogramsHiRes.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, KeyEvent.CTRL_MASK | KeyEvent.SHIFT_MASK));
         menuSettings.add(menuSettingsHistogramsHiRes);
 
         bar.add(menuFile);

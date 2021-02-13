@@ -29,12 +29,19 @@ public class RGB2LMS {
             {   0,          0,          1.089090}
     };
 
+    //private final double[][][][] rgb2lms_lut = new double[MAX_VAL+1][MAX_VAL+1][MAX_VAL+1][3];
+
     private final double[][] xyz_hpe;
     private final double[][] xyz_hpe_inv;
 
     public RGB2LMS(){
         xyz_hpe = multiply3by3matrices(hpe,RGB2LAB.XYZMatrix(RGB2LAB.ColorSpace.sRGB));
         xyz_hpe_inv = multiply3by3matrices(RGB2LAB.XYZMatrixInverse(RGB2LAB.ColorSpace.sRGB), hpe_inv);
+
+        /*for(int r=0; r<MAX_VAL; r++)
+            for(int g=0; g<MAX_VAL; g++)
+                for(int b=0; b<MAX_VAL; b++)
+                    rgb2lms_lut[r][g][b] = rgbValToLMS((r<<RED + g<<GREEN + b<<BLUE), hpe);*/
     }
 
     public double[] xyz2lms(double[] xyzRaster){
@@ -64,7 +71,7 @@ public class RGB2LMS {
         return outputRaster;
     }
 
-    private static double[] applyMatrix(int[] inputRaster, double[][] conversionMatrix){
+    private double[] applyMatrix(int[] inputRaster, double[][] conversionMatrix){
         double[] outputRaster = new double[(inputRaster.length*3)];
 
         for(int i=0;i<inputRaster.length;i++){
@@ -74,8 +81,26 @@ public class RGB2LMS {
             outputRaster[(i*3)]    =   conversionMatrix[0][0]*rComp + conversionMatrix[0][1]*gComp + conversionMatrix[0][2]*bComp; //X value
             outputRaster[(i*3)+1]  =   conversionMatrix[1][0]*rComp + conversionMatrix[1][1]*gComp + conversionMatrix[1][2]*bComp; //Y value
             outputRaster[(i*3)+2]  =   conversionMatrix[2][0]*rComp + conversionMatrix[2][1]*gComp + conversionMatrix[2][2]*bComp; //Z value
+            /*
+            double[] converted = rgb2lms_lut[(inputRaster[i]>>RED) & 0xFF][(inputRaster[i]>>GREEN) & 0xFF][(inputRaster[i]>>BLUE) & 0xFF];
+            for(int j=0; j<3; j++)
+                outputRaster[i+j] = converted[j];
+             */
         }
         return outputRaster;
+    }
+
+    private static double[] rgbValToLMS(int inputRGB, double [][] conversionMatrix){
+        double[] output = new double[3];
+        double rComp = linearizeRGB(((inputRGB>>RED) & 0xFF), GAMMA);
+        double gComp = linearizeRGB(((inputRGB>>GREEN) & 0xFF), GAMMA);
+        double bComp = linearizeRGB(((inputRGB>>BLUE) & 0xFF), GAMMA);
+
+        output[0]    =   conversionMatrix[0][0]*rComp + conversionMatrix[0][1]*gComp + conversionMatrix[0][2]*bComp; //X value
+        output[1]  =   conversionMatrix[1][0]*rComp + conversionMatrix[1][1]*gComp + conversionMatrix[1][2]*bComp; //Y value
+        output[2]  =   conversionMatrix[2][0]*rComp + conversionMatrix[2][1]*gComp + conversionMatrix[2][2]*bComp; //Z value
+
+        return output;
     }
 
     public static int[] applyMatrixRGB(double[] inputRaster, double[][] conversionMatrix){

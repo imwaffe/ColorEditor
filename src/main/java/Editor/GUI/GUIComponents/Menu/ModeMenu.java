@@ -7,7 +7,7 @@ import java.awt.event.ItemListener;
 public class ModeMenu extends JMenu {
 
     private final ButtonGroup modeGroup = new ButtonGroup();
-    private final JMenuItem RGB = new JRadioButtonMenuItem("RGB");
+    private final JMenuItem RGB = new JRadioButtonMenuItem("RGB",null,true);
     private final JMenuItem LMS = new JRadioButtonMenuItem("LMS");
     private final JMenuItem Lab = new JRadioButtonMenuItem("Lab");
 
