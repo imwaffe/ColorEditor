@@ -14,7 +14,6 @@ package ImageTools.AlterColor;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.util.ArrayList;
-import java.util.Observer;
 
 
 public class AlterRGB extends AlterColor{
@@ -54,18 +53,18 @@ public class AlterRGB extends AlterColor{
      * coefficients values */
     private int[] imageColorsChanger(int[] originalRgbRaster){
         int[] outputRgbRaster = new int[originalRgbRaster.length];
-        System.arraycopy(originalRgbRaster,0,outputRgbRaster,0,originalRgbRaster.length);
+        //System.arraycopy(originalRgbRaster,0,outputRgbRaster,0,originalRgbRaster.length);
 
         for(int i=0; i<outputRgbRaster.length; i++) {
-            int rComp = (outputRgbRaster[i]>>RED) & 0xFF;
-            int gComp = (outputRgbRaster[i]>>GREEN) & 0xFF;
-            int bComp = (outputRgbRaster[i]>>BLUE) & 0xFF;
+                int rComp = (originalRgbRaster[i] >> RED) & 0xFF;
+                int gComp = (originalRgbRaster[i] >> GREEN) & 0xFF;
+                int bComp = (originalRgbRaster[i] >> BLUE) & 0xFF;
 
-            rComp= (int) (rComp*rCoeff)<<RED;
-            gComp= (int) (gComp*gCoeff)<<GREEN;
-            bComp= (int) (bComp*bCoeff)<<BLUE;
+                rComp = (int) (rComp * rCoeff) << RED;
+                gComp = (int) (gComp * gCoeff) << GREEN;
+                bComp = (int) (bComp * bCoeff) << BLUE;
 
-            outputRgbRaster[i] = rComp+gComp+bComp;
+                outputRgbRaster[i] = rComp + gComp + bComp;
         }
         return outputRgbRaster;
     }

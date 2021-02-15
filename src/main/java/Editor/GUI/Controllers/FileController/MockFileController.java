@@ -13,6 +13,6 @@ public class MockFileController extends FileChooserController{
 
     @Override
     protected File openFileStrategy(GUI gui){
-        return new File("D:\\users\\lucaa\\Pictures\\Mona_Lisa-restored.jpg");
+        return new File("D:\\users\\lucaa\\Pictures\\testpic.jpg");
     }
 }

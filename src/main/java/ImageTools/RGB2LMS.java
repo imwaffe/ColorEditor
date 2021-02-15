@@ -12,10 +12,10 @@ public class RGB2LMS {
     private final static int MIN_VAL = 0;   //min value of each color channel
     private final static int MAX_VAL = 255; //max value of each color channel
 
-    private final static double UNLINEAR_RGB_THRS = 0.0031308;
-    private final static double LINEAR_RGB_THRS = 10.31475;
+    private final static double UNLINEAR_RGB_THRS = 0.0031308;  //threshold used for reversing linearization
+    private final static double LINEAR_RGB_THRS = 10.31475;     //threshold used for linearization
 
-    private final static double GAMMA = 2.4;
+    private final static double GAMMA = 2.4;    //gamma, used for linearization (and reverting back)
 
     private final static HashMap<Integer, double[]> rgb2lmsLut = new HashMap<>(10000);
     private final static TreeMap<Double, Integer> unlinearizeLut = new TreeMap<>();

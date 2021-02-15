@@ -66,13 +66,13 @@ public class GUI extends JFrame{
         super.getContentPane().add(BorderLayout.NORTH, bar);
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         super.setSize(screenSize);
+        super.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        super.setResizable(false);
 
         rightPanel.setVisible(false);
         rightPanel.setBackground(new Color(38, 38, 38));
-        rightPanel.setPreferredSize(new Dimension(300, (int) (super.getHeight()-buttonsPanelContainer.getPreferredSize().getHeight())));
+        rightPanel.setPreferredSize(new Dimension(500, (int) (super.getHeight()-buttonsPanelContainer.getPreferredSize().getHeight())));
 
-        super.setExtendedState(JFrame.MAXIMIZED_BOTH);
-        super.setResizable(false);
         super.setVisible(true);
     }
 
@@ -89,8 +89,10 @@ public class GUI extends JFrame{
     /** Display a new image in window */
     public void setImage(BufferedImage img){
         imgLabel.setIcon(new ImageIcon(img));
+        GridBagConstraints gbc = new GridBagConstraints();
         imgPanel.removeAll();
-        imgPanel.add(imgLabel);
+        imgPanel.setLayout(new GridBagLayout());
+        imgPanel.add(imgLabel, gbc);
         super.revalidate();
         super.repaint();
     }
