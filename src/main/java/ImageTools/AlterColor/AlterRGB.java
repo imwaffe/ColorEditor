@@ -14,7 +14,6 @@ package ImageTools.AlterColor;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.util.ArrayList;
-import java.util.Observer;
 
 
 public class AlterRGB extends AlterColor{
@@ -25,10 +24,8 @@ public class AlterRGB extends AlterColor{
     private final static int MIN_VAL = 0;   //min value of each color channel
     private final static int MAX_VAL = 255; //max value of each color channel
 
-    /**
-     * originalRgbRaster is the RGB raster of the original image, this will be used to write the altered image.
-     * alteredRgbRaster is the RGB raster containing the color-altered version of the original image
-     * */
+    private BufferedImage inputImage;
+    private int[] inputRaster;
 
     private int scaleR=MIN_VAL, scaleG=MIN_VAL, scaleB=MIN_VAL;
 
@@ -56,18 +53,18 @@ public class AlterRGB extends AlterColor{
      * coefficients values */
     private int[] imageColorsChanger(int[] originalRgbRaster){
         int[] outputRgbRaster = new int[originalRgbRaster.length];
-        System.arraycopy(originalRgbRaster,0,outputRgbRaster,0,originalRgbRaster.length);
+        //System.arraycopy(originalRgbRaster,0,outputRgbRaster,0,originalRgbRaster.length);
 
         for(int i=0; i<outputRgbRaster.length; i++) {
-            int rComp = (outputRgbRaster[i]>>RED) & 0xFF;
-            int gComp = (outputRgbRaster[i]>>GREEN) & 0xFF;
-            int bComp = (outputRgbRaster[i]>>BLUE) & 0xFF;
+                int rComp = (originalRgbRaster[i] >> RED) & 0xFF;
+                int gComp = (originalRgbRaster[i] >> GREEN) & 0xFF;
+                int bComp = (originalRgbRaster[i] >> BLUE) & 0xFF;
 
-            rComp= (int) (rComp*rCoeff)<<RED;
-            gComp= (int) (gComp*gCoeff)<<GREEN;
-            bComp= (int) (bComp*bCoeff)<<BLUE;
+                rComp = (int) (rComp * rCoeff) << RED;
+                gComp = (int) (gComp * gCoeff) << GREEN;
+                bComp = (int) (bComp * bCoeff) << BLUE;
 
-            outputRgbRaster[i] = rComp+gComp+bComp;
+                outputRgbRaster[i] = rComp + gComp + bComp;
         }
         return outputRgbRaster;
     }
@@ -154,11 +151,14 @@ public class AlterRGB extends AlterColor{
         return "[R"+ rCoeff +",G"+ gCoeff +",B"+ bCoeff +"]";
     }
 
-    /** Returns the BufferedImage of the original raster (the resized one used as a preview). */
     @Override
-    public BufferedImage alterImage(BufferedImage input){
-        int[] alteredImg = imageColorsChanger(((DataBufferInt) input.getRaster().getDataBuffer()).getData());
-        return getBufferedImage(alteredImg, input.getWidth(), input.getHeight());
+    public BufferedImage alterImage(BufferedImage inputImage){
+        if (this.inputImage != inputImage) {
+            this.inputImage = inputImage;
+            inputRaster = ((DataBufferInt) inputImage.getRaster().getDataBuffer()).getData();
+        }
+        int[] alteredImg = imageColorsChanger(inputRaster);
+        return getBufferedImage(alteredImg, this.inputImage.getWidth(), this.inputImage.getHeight());
     }
 
 }

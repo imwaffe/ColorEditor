@@ -8,6 +8,7 @@ import ImageTools.AlterColor.AlterColor;
 import ImageTools.ImagesList;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.Observable;
@@ -17,15 +18,18 @@ public abstract class FileController extends Observable {
     protected File inputFile;
     protected final ImageProxy imageProxy;
 
+    private final static int MAX_WIDTH = 1100;
+
     public FileController(GUI gui, ImageProxy imageProxy) {
         this.imageProxy = imageProxy;
         this.gui = gui;
+        Dimension maxSize = new Dimension((int)Math.min(this.gui.getImagePanelSize().getWidth(),MAX_WIDTH),(int)this.gui.getImagePanelSize().getHeight());
         gui.openFileListener(a -> {
             this.imageProxy.setCropped(false);
             inputFile = openFileStrategy(this.gui);
             try {
                 this.imageProxy.setInputImage(
-                    new ImageController(ImagesList.toBuffImg(inputFile), this.gui.getImagePanelSize())
+                    new ImageController(ImagesList.toBuffImg(inputFile), maxSize)
                 );
             } catch (IOException e) {
                 e.printStackTrace();
