@@ -125,20 +125,6 @@ public class RGB2LMS {
     }
 
     protected int unlinearizeRGB (double linearRGB){
-        /*if(unlinearizeLut.containsKey(linearRGB))
-            return unlinearizeLut.get(linearRGB);
-        int rgb;
-        if (linearRGB <= UNLINEAR_RGB_THRS)
-            rgb = (int) Math.round(MAX_VAL * 12.92 * linearRGB);
-        else
-            rgb = (int) Math.round(MAX_VAL * (1.055 * Math.pow(linearRGB, (1 / gamma)) - 0.055));
-        if (rgb < MIN_VAL)
-            rgb = 0;
-        else if (rgb > MAX_VAL)
-            rgb = 255;
-        unlinearizeLut.put(linearRGB, rgb);
-        return rgb;*/
-
         try{
             return unlinearizeLut.floorEntry(linearRGB).getValue();
         } catch (NullPointerException e){

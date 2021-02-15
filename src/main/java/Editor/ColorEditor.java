@@ -32,7 +32,7 @@ public class ColorEditor {
         gui.getMenus().add(modeMenu);
         HistogramController histogram = new HistogramController(gui.getRightPanel(),imageProxy,true);
 
-        FileController fileController = new MockFileController(gui, imageProxy);
+        FileController fileController = new FileChooserController(gui, imageProxy);
         KeyboardController keyboardController = new KeyboardController(KeyboardFocusManager.getCurrentKeyboardFocusManager());
 
         fileController.addObserver(gui);
