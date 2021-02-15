@@ -2,6 +2,7 @@ package ImageTools;
 
 import java.awt.image.RasterFormatException;
 import java.util.HashMap;
+import java.util.TreeMap;
 
 public class RGB2LMS {
     private final static int RED    = 16;   //trailing zeroes of 0xFF0000 (red channel bit mask)
@@ -11,11 +12,13 @@ public class RGB2LMS {
     private final static int MIN_VAL = 0;   //min value of each color channel
     private final static int MAX_VAL = 255; //max value of each color channel
 
-    private final static double GAMMA = 2.4;
     private final static double UNLINEAR_RGB_THRS = 0.0031308;
+    private final static double LINEAR_RGB_THRS = 10.31475;
+
+    private final static double GAMMA = 2.4;
 
     private final static HashMap<Integer, double[]> rgb2lmsLut = new HashMap<>(10000);
-    private final static HashMap<String, Integer> unlinearizeRgbLut = new HashMap<>(1000);
+    private final static TreeMap<Double, Integer> unlinearizeLut = new TreeMap<>();
 
     /** Hunt-Pointer-Estevez transformation matrix from XYZ to LMS normalized to D65 */
     private final static double[][] hpe ={
@@ -34,9 +37,17 @@ public class RGB2LMS {
     private final double[][] xyz_hpe;
     private final double[][] xyz_hpe_inv;
 
+
+    /**
+     * Initialize two matrices that combines XYZ (and inverted XYZ) conversion matrices and HPE (and inverted HPE)
+     * matrices, to speed up processing.
+     * */
     public RGB2LMS(){
         xyz_hpe = multiply3by3matrices(hpe,RGB2LAB.XYZMatrix(RGB2LAB.ColorSpace.sRGB));
         xyz_hpe_inv = multiply3by3matrices(RGB2LAB.XYZMatrixInverse(RGB2LAB.ColorSpace.sRGB), hpe_inv);
+        for(int i=MIN_VAL; i<=MAX_VAL; i++){
+            unlinearizeLut.put(linearizeRGB(i,GAMMA),i);
+        }
     }
 
     public double[] xyz2lms(double[] xyzRaster){
@@ -55,13 +66,13 @@ public class RGB2LMS {
         return applyMatrixRGB(lmsRaster, xyz_hpe_inv);
     }
 
-    private static double[] applyMatrix(double[] inputRaster, double[][] conversionMatrix){
+    private double[] applyMatrix(double[] inputRaster, double[][] conversionMatrix){
         double[] outputRaster = new double[(inputRaster.length*3)];
 
         for(int i=0;i<inputRaster.length;i+=3){
-            outputRaster[i]    =   conversionMatrix[0][0]*inputRaster[i] + conversionMatrix[0][1]*inputRaster[i+1] + conversionMatrix[0][2]*inputRaster[i+2]; //X value
-            outputRaster[i+1]  =   conversionMatrix[1][0]*inputRaster[i] + conversionMatrix[1][1]*inputRaster[i+1] + conversionMatrix[1][2]*inputRaster[i+2]; //Y value
-            outputRaster[i+2]  =   conversionMatrix[2][0]*inputRaster[i] + conversionMatrix[2][1]*inputRaster[i+1] + conversionMatrix[2][2]*inputRaster[i+2]; //Z value
+            outputRaster[i]   = conversionMatrix[0][0]*inputRaster[i] + conversionMatrix[0][1]*inputRaster[i+1] + conversionMatrix[0][2]*inputRaster[i+2]; //X value
+            outputRaster[i+1] = conversionMatrix[1][0]*inputRaster[i] + conversionMatrix[1][1]*inputRaster[i+1] + conversionMatrix[1][2]*inputRaster[i+2]; //Y value
+            outputRaster[i+2] = conversionMatrix[2][0]*inputRaster[i] + conversionMatrix[2][1]*inputRaster[i+1] + conversionMatrix[2][2]*inputRaster[i+2]; //Z value
         }
         return outputRaster;
     }
@@ -88,15 +99,15 @@ public class RGB2LMS {
         return outputRaster;
     }
 
-    public static int[] applyMatrixRGB(double[] inputRaster, double[][] conversionMatrix){
+    private int[] applyMatrixRGB(double[] inputRaster, double[][] conversionMatrix){
         if(inputRaster.length%3!=0)
             throw new RasterFormatException("Given XYZ raster length should be a multiple of 3");
         int[] rgbRaster = new int[inputRaster.length/3];
 
         for(int i=0;i<inputRaster.length;i+=3){
-            int rComp   = unlinearizeRGB( (( conversionMatrix[0][0]*inputRaster[i]  +  conversionMatrix[0][1]*inputRaster[i+1]  +  conversionMatrix[0][2]*inputRaster[i+2])), GAMMA) << RED;   //R value
-            int gComp   = unlinearizeRGB( (( conversionMatrix[1][0]*inputRaster[i]  +  conversionMatrix[1][1]*inputRaster[i+1]  +  conversionMatrix[1][2]*inputRaster[i+2])), GAMMA) << GREEN; //G value
-            int bComp   = unlinearizeRGB( (( conversionMatrix[2][0]*inputRaster[i]  +  conversionMatrix[2][1]*inputRaster[i+1]  +  conversionMatrix[2][2]*inputRaster[i+2])), GAMMA) << BLUE;  //B value
+            int rComp = unlinearizeRGB( (( conversionMatrix[0][0]*inputRaster[i]  +  conversionMatrix[0][1]*inputRaster[i+1]  +  conversionMatrix[0][2]*inputRaster[i+2]))) << RED;   //R value
+            int gComp = unlinearizeRGB( (( conversionMatrix[1][0]*inputRaster[i]  +  conversionMatrix[1][1]*inputRaster[i+1]  +  conversionMatrix[1][2]*inputRaster[i+2]))) << GREEN; //G value
+            int bComp = unlinearizeRGB( (( conversionMatrix[2][0]*inputRaster[i]  +  conversionMatrix[2][1]*inputRaster[i+1]  +  conversionMatrix[2][2]*inputRaster[i+2]))) << BLUE;  //B value
 
             rgbRaster[i/3] = rComp+gComp+bComp;
         }
@@ -104,17 +115,18 @@ public class RGB2LMS {
         return rgbRaster;
     }
 
-    private static double linearizeRGB (int rgb, double gamma){
-        double v = 10.31475;
+    protected double linearizeRGB (int rgb, double gamma){
         double linearRGB;
-        if(rgb <= v)
+        if(rgb <= LINEAR_RGB_THRS)
             linearRGB = rgb/(MAX_VAL*12.92);
         else
             linearRGB = Math.pow((((double)rgb/MAX_VAL + 0.055)/1.055),gamma);
         return linearRGB;
     }
 
-    private static int unlinearizeRGB (double linearRGB, double gamma){
+    protected int unlinearizeRGB (double linearRGB){
+        /*if(unlinearizeLut.containsKey(linearRGB))
+            return unlinearizeLut.get(linearRGB);
         int rgb;
         if (linearRGB <= UNLINEAR_RGB_THRS)
             rgb = (int) Math.round(MAX_VAL * 12.92 * linearRGB);
@@ -124,7 +136,14 @@ public class RGB2LMS {
             rgb = 0;
         else if (rgb > MAX_VAL)
             rgb = 255;
-        return rgb;
+        unlinearizeLut.put(linearRGB, rgb);
+        return rgb;*/
+
+        try{
+            return unlinearizeLut.floorEntry(linearRGB).getValue();
+        } catch (NullPointerException e){
+            return 0;
+        }
     }
 
     private static double[][] multiply3by3matrices(double[][] a, double[][] b){

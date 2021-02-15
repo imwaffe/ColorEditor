@@ -46,6 +46,7 @@ import ImageTools.RGB2LMS;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.util.Arrays;
+import java.util.TreeMap;
 
 public class AlterLMS extends AlterColor{
     private final static double KLM =  1.05118294;  // M coefficient to calculate L and simulate protanopia

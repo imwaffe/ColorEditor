@@ -25,10 +25,8 @@ public class AlterRGB extends AlterColor{
     private final static int MIN_VAL = 0;   //min value of each color channel
     private final static int MAX_VAL = 255; //max value of each color channel
 
-    /**
-     * originalRgbRaster is the RGB raster of the original image, this will be used to write the altered image.
-     * alteredRgbRaster is the RGB raster containing the color-altered version of the original image
-     * */
+    private BufferedImage inputImage;
+    private int[] inputRaster;
 
     private int scaleR=MIN_VAL, scaleG=MIN_VAL, scaleB=MIN_VAL;
 
@@ -154,11 +152,14 @@ public class AlterRGB extends AlterColor{
         return "[R"+ rCoeff +",G"+ gCoeff +",B"+ bCoeff +"]";
     }
 
-    /** Returns the BufferedImage of the original raster (the resized one used as a preview). */
     @Override
-    public BufferedImage alterImage(BufferedImage input){
-        int[] alteredImg = imageColorsChanger(((DataBufferInt) input.getRaster().getDataBuffer()).getData());
-        return getBufferedImage(alteredImg, input.getWidth(), input.getHeight());
+    public BufferedImage alterImage(BufferedImage inputImage){
+        if (this.inputImage != inputImage) {
+            this.inputImage = inputImage;
+            inputRaster = ((DataBufferInt) inputImage.getRaster().getDataBuffer()).getData();
+        }
+        int[] alteredImg = imageColorsChanger(inputRaster);
+        return getBufferedImage(alteredImg, this.inputImage.getWidth(), this.inputImage.getHeight());
     }
 
 }

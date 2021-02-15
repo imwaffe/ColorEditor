@@ -16,4 +16,5 @@ public abstract class AlterColor extends Observable {
         buffImg.setRGB(0,0, width, height,rgbRaster,0, width);
         return buffImg;
     }
+
 }

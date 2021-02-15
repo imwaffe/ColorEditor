@@ -32,12 +32,14 @@
 package ImageTools;
 
 import java.awt.image.RasterFormatException;
+import java.util.TreeMap;
 
 public class RGB2LAB {
     private final static int RED    = 16;   //trailing zeroes of 0xFF0000 (RGB BufferedImage red channel bit mask)
     private final static int GREEN  = 8;    //trailing zeroes of 0x00FF00 (RGB BufferedImage green channel bit mask)
     private final static int BLUE   = 0;    //trailing zeroes of 0x0000FF (RGB BufferedImage blue channel bit mask)
-    private final static int MAX_RGB_VAL = 255;
+    private final static int MAX_VAL = 255;
+    private final static int MIN_VAL = 0;
 
     public enum ColorSpace {sRGB, AdobeRGB}
     public enum White {D65, D50}
@@ -100,9 +102,9 @@ public class RGB2LAB {
         double[][] conversionMatrix = XYZMatrix(m);
 
         for(int i=0;i<rgbRaster.length;i++){
-            double rComp = ((rgbRaster[i]>>RED) & 0xFF)   / (double) MAX_RGB_VAL;
-            double gComp = ((rgbRaster[i]>>GREEN) & 0xFF) / (double) MAX_RGB_VAL;
-            double bComp = ((rgbRaster[i]>>BLUE) & 0xFF)  / (double) MAX_RGB_VAL;
+            double rComp = ((rgbRaster[i]>>RED) & 0xFF)   / (double) MAX_VAL;
+            double gComp = ((rgbRaster[i]>>GREEN) & 0xFF) / (double) MAX_VAL;
+            double bComp = ((rgbRaster[i]>>BLUE) & 0xFF)  / (double) MAX_VAL;
             xyzRaster[(i*3)]    =   conversionMatrix[0][0]*rComp + conversionMatrix[0][1]*gComp + conversionMatrix[0][2]*bComp; //X value
             xyzRaster[(i*3)+1]  =   conversionMatrix[1][0]*rComp + conversionMatrix[1][1]*gComp + conversionMatrix[1][2]*bComp; //Y value
             xyzRaster[(i*3)+2]  =   conversionMatrix[2][0]*rComp + conversionMatrix[2][1]*gComp + conversionMatrix[2][2]*bComp; //Z value
@@ -116,9 +118,9 @@ public class RGB2LAB {
         double[][] conversionMatrix = XYZMatrixInverse(m);
 
         for(int i=0;i<xyzRaster.length;i+=3){
-            int rComp   = ((int) (( conversionMatrix[0][0]*xyzRaster[i]  +  conversionMatrix[0][1]*xyzRaster[i+1]  +  conversionMatrix[0][2]*xyzRaster[i+2])*MAX_RGB_VAL)) << RED;   //R value
-            int gComp   = ((int) (( conversionMatrix[1][0]*xyzRaster[i]  +  conversionMatrix[1][1]*xyzRaster[i+1]  +  conversionMatrix[1][2]*xyzRaster[i+2])*MAX_RGB_VAL)) << GREEN; //G value
-            int bComp   = ((int) (( conversionMatrix[2][0]*xyzRaster[i]  +  conversionMatrix[2][1]*xyzRaster[i+1]  +  conversionMatrix[2][2]*xyzRaster[i+2])*MAX_RGB_VAL)) << BLUE;  //B value
+            int rComp   = ((int) (( conversionMatrix[0][0]*xyzRaster[i]  +  conversionMatrix[0][1]*xyzRaster[i+1]  +  conversionMatrix[0][2]*xyzRaster[i+2])* MAX_VAL)) << RED;   //R value
+            int gComp   = ((int) (( conversionMatrix[1][0]*xyzRaster[i]  +  conversionMatrix[1][1]*xyzRaster[i+1]  +  conversionMatrix[1][2]*xyzRaster[i+2])* MAX_VAL)) << GREEN; //G value
+            int bComp   = ((int) (( conversionMatrix[2][0]*xyzRaster[i]  +  conversionMatrix[2][1]*xyzRaster[i+1]  +  conversionMatrix[2][2]*xyzRaster[i+2])* MAX_VAL)) << BLUE;  //B value
 
             rgbRaster[i/3] = rComp+gComp+bComp;
         }
@@ -174,6 +176,7 @@ public class RGB2LAB {
 
         return xyzRaster;
     }
+
     public static double[] rgb2lab(int[] rgbRaster, ColorSpace colorSpace, White referenceWhite){
         return xyz2lab(rgb2xyz(rgbRaster,colorSpace),referenceWhite);
     }
