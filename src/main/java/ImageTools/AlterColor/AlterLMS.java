@@ -68,16 +68,12 @@ public class AlterLMS extends AlterColor{
             km = 0;
             if(kl < 1-STEPS) {
                 kl += STEPS;
-                setChanged();
-                notifyObservers();
             }
         }
         else if(!ch1 && ch2 && !ch3){
             kl = 0;
             if(km < 1-STEPS) {
                 km += STEPS;
-                setChanged();
-                notifyObservers();
             }
         }
     }
@@ -88,16 +84,12 @@ public class AlterLMS extends AlterColor{
             km = 0;
             if(kl > STEPS) {
                 kl -= STEPS;
-                setChanged();
-                notifyObservers();
             }
         }
         if(!ch1 && ch2 && !ch3){
             kl = 0;
             if(km > STEPS) {
                 km -= STEPS;
-                setChanged();
-                notifyObservers();
             }
         }
     }
