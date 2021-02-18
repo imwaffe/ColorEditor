@@ -46,13 +46,12 @@ import ImageTools.RGB2LMS;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.util.Arrays;
-import java.util.TreeMap;
 
 public class AlterLMS extends AlterColor{
-    private final static double KLM =  1.05118294;  // M coefficient to calculate L and simulate protanopia
-    private final static double KLS = -0.05116099;  // S coefficient to calculate L and simulate protanopia
-    private final static double KML =  0.95133125;  // L coefficient to calculate M and simulate deuteranopia
-    private final static double KMS =  0.04866874;  // S coefficient to calculate M and simulate deuteranopia
+    private final static double KLM =  1.051182996;  // M coefficient to calculate L and simulate protanopia (1.05118294)
+    private final static double KLS =  -0.05116099621;  // S coefficient to calculate L and simulate protanopia (-0.05116099)
+    private final static double KML =  0.95133125;  // L coefficient to calculate M and simulate deuteranopia (0.95133125)
+    private final static double KMS =  0.04866874;  // S coefficient to calculate M and simulate deuteranopia (0.04866874)
     private final static double STEPS = 0.05; // how fast kl and km change (between 0 and 1)
     private double kl = 0;
     private double km = 0;
@@ -102,10 +101,12 @@ public class AlterLMS extends AlterColor{
             inputLMSraster = rgb2lms.rgb2lms(rgbRaster);
         }
         double[] outputLMSraster = Arrays.copyOf(inputLMSraster, inputLMSraster.length);
-        for (int i = 0; i < outputLMSraster.length; i += 3) {
-            outputLMSraster[i] = (1 - kl) * outputLMSraster[i] + (kl * KLM) * outputLMSraster[i + 1] + (kl * KLS) * outputLMSraster[i + 2];
-            outputLMSraster[i+1] = (km * KML) * outputLMSraster[i] + (1 - km) * outputLMSraster[i + 1] + (km * KMS) * outputLMSraster[i + 2];
-        }
+        if(kl != 0)
+            for (int i = 0; i < outputLMSraster.length; i += 3)
+                outputLMSraster[i] = (1 - kl) * outputLMSraster[i] + (kl * KLM) * outputLMSraster[i + 1] + (kl * KLS) * outputLMSraster[i + 2];
+        else if(km != 0)
+            for (int i = 0; i < outputLMSraster.length; i += 3)
+                outputLMSraster[i+1] = (km * KML) * outputLMSraster[i] + (1 - km) * outputLMSraster[i + 1] + (km * KMS) * outputLMSraster[i + 2];
         return getBufferedImage(rgb2lms.lms2rgb(outputLMSraster), this.inputImage.getWidth(), this.inputImage.getHeight());
     }
 
