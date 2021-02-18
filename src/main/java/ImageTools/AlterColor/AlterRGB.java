@@ -14,6 +14,8 @@ package ImageTools.AlterColor;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.TreeMap;
 
 
 public class AlterRGB extends AlterColor{
@@ -26,6 +28,8 @@ public class AlterRGB extends AlterColor{
 
     private BufferedImage inputImage;
     private int[] inputRaster;
+
+    //private TreeMap<Integer, Integer> colorsChangerLut = new TreeMap<>();
 
     private int scaleR=MIN_VAL, scaleG=MIN_VAL, scaleB=MIN_VAL;
 
@@ -44,27 +48,17 @@ public class AlterRGB extends AlterColor{
         rCoeff=(float)(MAX_VAL-rR)/(float)MAX_VAL;
         gCoeff=(float)(MAX_VAL-rG)/(float)MAX_VAL;
         bCoeff=(float)(MAX_VAL-rB)/(float)MAX_VAL;
-
-        setChanged();
-        notifyObservers();
     }
 
     /** Returns an RGB raster by modifying the one passed as parameter according to rCoeff, gCoeff and bCoeff
      * coefficients values */
     private int[] imageColorsChanger(int[] originalRgbRaster){
         int[] outputRgbRaster = new int[originalRgbRaster.length];
-        //System.arraycopy(originalRgbRaster,0,outputRgbRaster,0,originalRgbRaster.length);
 
         for(int i=0; i<outputRgbRaster.length; i++) {
-                int rComp = (originalRgbRaster[i] >> RED) & 0xFF;
-                int gComp = (originalRgbRaster[i] >> GREEN) & 0xFF;
-                int bComp = (originalRgbRaster[i] >> BLUE) & 0xFF;
-
-                rComp = (int) (rComp * rCoeff) << RED;
-                gComp = (int) (gComp * gCoeff) << GREEN;
-                bComp = (int) (bComp * bCoeff) << BLUE;
-
-                outputRgbRaster[i] = rComp + gComp + bComp;
+            outputRgbRaster[i] = ((int) (((originalRgbRaster[i] >> RED) & 0xFF) * rCoeff) << RED) +
+                    ((int) (((originalRgbRaster[i] >> GREEN) & 0xFF) * gCoeff) << GREEN) +
+                    ((int) (((originalRgbRaster[i] >> BLUE) & 0xFF) * bCoeff) << BLUE);
         }
         return outputRgbRaster;
     }

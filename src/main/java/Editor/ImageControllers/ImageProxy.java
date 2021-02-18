@@ -1,7 +1,6 @@
 package Editor.ImageControllers;
 
 import ImageTools.AlterColor.AlterColor;
-import ImageTools.AlterColor.AlterLMS;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
