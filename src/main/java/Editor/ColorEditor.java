@@ -2,7 +2,6 @@ package Editor;
 
 import Editor.GUI.Controllers.FileController.FileChooserController;
 import Editor.GUI.Controllers.FileController.FileController;
-import Editor.GUI.Controllers.FileController.MockFileController;
 import Editor.GUI.Controllers.GUIObserver;
 import Editor.GUI.Controllers.KeyboardController;
 import Editor.GUI.GUIComponents.ColorButton.ButtonsPanelLMS;
@@ -11,8 +10,10 @@ import Editor.GUI.GUIComponents.Menu.ModeMenu;
 import Editor.GUI.GUIComponents.Modal.Modal;
 import Editor.ImageControllers.ImageProxy;
 import Histograms.HistogramController;
+import ImageTools.AlterColor.AlterColor;
 import ImageTools.AlterColor.AlterColorStrategy;
-import ImageTools.AlterColor.AlterLMS;
+import ImageTools.AlterColor.AlterLMS.AlterLMS;
+import ImageTools.AlterColor.AlterLMS.AlterLMSWhite;
 import ImageTools.AlterColor.AlterRGB;
 
 import javax.swing.*;
@@ -23,12 +24,12 @@ public class ColorEditor {
     public static void main(String[] args) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
-        AlterColorStrategy alterColor = new AlterColorStrategy(new AlterLMS());
-        ImageProxy imageProxy = new ImageProxy(alterColor);
+        AlterColorStrategy.getInstance(new AlterLMS());
+        ImageProxy imageProxy = new ImageProxy(AlterColorStrategy.getInstance());
 
         GUIObserver gui = new GUIObserver(imageProxy);
         gui.setButtonsPanel(new ButtonsPanelLMS());
-        ModeMenu modeMenu = new ModeMenu();
+        ModeMenu modeMenu = ModeMenu.getInstance();
         gui.getMenus().add(modeMenu);
         HistogramController histogram = new HistogramController(gui.getRightPanel(),imageProxy,true);
 
@@ -36,7 +37,7 @@ public class ColorEditor {
         KeyboardController keyboardController = new KeyboardController(KeyboardFocusManager.getCurrentKeyboardFocusManager());
 
         fileController.addObserver(gui);
-        alterColor.addObserver(gui);
+        AlterColorStrategy.getInstance().addObserver(gui);
 
         gui.setTitle("Color Editor");
 
@@ -50,11 +51,11 @@ public class ColorEditor {
             gui.getRightPanel().setVisible(state);
             if(!state){
                 fileController.deleteObserver(histogram);
-                alterColor.deleteObserver(histogram);
+                AlterColorStrategy.getInstance().deleteObserver(histogram);
             }
             else{
                 fileController.addObserver(histogram);
-                alterColor.addObserver(histogram);
+                AlterColorStrategy.getInstance().addObserver(histogram);
                 histogram.update(new Observable(),null);
             }
         });
@@ -70,13 +71,13 @@ public class ColorEditor {
         });
 
         keyboardController.decreaseAction(() ->
-            alterColor.decreaseByOne(
+            AlterColorStrategy.getInstance().decreaseByOne(
                     gui.getButtonsPanel().getSelectedChannel(0),
                     gui.getButtonsPanel().getSelectedChannel(1),
                     gui.getButtonsPanel().getSelectedChannel(2)
         ));
         keyboardController.increaseAction(() ->
-            alterColor.increaseByOne(
+            AlterColorStrategy.getInstance().increaseByOne(
                     gui.getButtonsPanel().getSelectedChannel(0),
                     gui.getButtonsPanel().getSelectedChannel(1),
                     gui.getButtonsPanel().getSelectedChannel(2)
@@ -97,7 +98,7 @@ public class ColorEditor {
         });
 
         modeMenu.setRGBaction(() -> {
-            alterColor.setStrategy(new AlterRGB());
+            AlterColorStrategy.getInstance().setStrategy(new AlterRGB());
             gui.setButtonsPanel(new ButtonsPanelRGB());
             gui.revalidate();
             gui.repaint();
@@ -105,11 +106,19 @@ public class ColorEditor {
             histogram.update(new Observable(),null);
         });
         modeMenu.setLMSaction(() -> {
-            alterColor.setStrategy(new AlterLMS());
+            AlterColorStrategy.getInstance().setStrategy(new AlterLMS());
             gui.setButtonsPanel(new ButtonsPanelLMS());
             gui.revalidate();
             gui.repaint();
             imageProxy.reset();
+            histogram.update(new Observable(),null);
+        });
+        modeMenu.setLMSgwaction(() -> {
+            imageProxy.reset();
+            AlterColorStrategy.getInstance().setStrategy(new AlterLMSWhite(imageProxy));
+            gui.setButtonsPanel(new ButtonsPanelLMS());
+            gui.revalidate();
+            gui.repaint();
             histogram.update(new Observable(),null);
         });
     }
