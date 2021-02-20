@@ -30,7 +30,7 @@ of the original image.<br><br>
     The name of the saved image contains information
     on the coefficients used to linear map each pixel's R, G and B values.<br>
     Eg:<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>imagename-COEFF\[R0.5,G1.0,B1.0].jpg</i>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>imagename-COEFF[R0.5,G1.0,B1.0].jpg</i>
         <br>
         means that the R value of each pixel has been halved.
 </details><br>
@@ -56,7 +56,7 @@ of the original image.<br><br>
     standard sRGB.<br><br>
     The name of the saved image will be as follows:<br>
     Eg:<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>imagename-COEFF\[KxVAL].jpg</i>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>imagename-COEFF[KxVAL].jpg</i>
         <br>
     Where <i>Kx</i> refers to the channel used to alter the image (KM or KL for M or L channels)
     and VAL ranges between 0 and 1 (where 0 means that the output image is identical to the input image
@@ -65,6 +65,14 @@ of the original image.<br><br>
 </details>
 
 <br><br>
+
+### Parse saved filename
+The following regex can be used to extract the width (<i>W</i>) of the <i>SELECTION</i> from the
+filename of the saved image:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`\.*SELECTION\[.*(W.*?([^\e]*?)),|\]`
+<br>
+It can easily be adapted to extract x,y,W,H,KM,KL of COEFF and SELECTION.
 
 ## To do
 - Allow the user to load multiple files and move between them
